@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
 import { useGlobalState } from '@/composables/useGlobalState';
 import DefaultLayout from '@/layouts/default.vue';
-import ErrorLayout from '@/layouts/error.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -102,19 +101,8 @@ export const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const { isAuthenticated, loading } = useGlobalState();
 
-  // Wait for auth to initialize
   if (loading.value) {
-    await new Promise(resolve => {
-      const unwatch = router.app?.$watch(
-        () => loading.value,
-        (newVal) => {
-          if (!newVal) {
-            unwatch?.();
-            resolve(true);
-          }
-        }
-      );
-    });
+    await until(loading).toBe(false);
   }
 
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);

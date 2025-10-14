@@ -5,6 +5,7 @@ import { message } from 'ant-design-vue';
 import { registerUser } from '@/api/auth/mutations';
 import type { RegisterCredentials } from '@/api/auth/interfaces';
 import { useI18n } from 'vue-i18n';
+import type { Rule } from 'ant-design-vue/es/form';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -16,17 +17,18 @@ const formState = reactive<RegisterCredentials>({
   fullName: '',
 });
 
-const rules = {
+
+const rules: Record<string, Rule[]> = {
   email: [
-    { required: true, message: t('auth.emailRequired'), trigger: 'blur' },
-    { type: 'email', message: t('auth.emailInvalid'), trigger: 'blur' },
+    { required: true, message: 'Email is required', trigger: 'blur' },
+    { type: 'email', message: 'Please enter a valid email', trigger: 'blur' },
   ],
   password: [
-    { required: true, message: t('auth.passwordRequired'), trigger: 'blur' },
-    { min: 6, message: t('auth.passwordMin'), trigger: 'blur' },
+    { required: true, message: 'Password is required', trigger: 'blur' },
+    { min: 6, message: 'Minimum 6 characters', trigger: 'blur' },
   ],
   fullName: [
-    { required: true, message: t('auth.fullNameRequired'), trigger: 'blur' },
+    { required: true, message: 'Full name is required', trigger: 'blur' },
   ],
 };
 

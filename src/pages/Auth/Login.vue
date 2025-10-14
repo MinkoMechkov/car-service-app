@@ -5,6 +5,7 @@ import { message } from 'ant-design-vue';
 import { authMutations } from '@/api/auth/mutations';
 import type { LoginCredentials } from '@/api/auth/interfaces';
 import { useI18n } from 'vue-i18n';
+import type { Rule } from 'ant-design-vue/es/form';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -15,7 +16,7 @@ const formState = reactive<LoginCredentials>({
   password: '',
 });
 
-const rules = {
+const rules: Record<string, Rule[]> = {
   email: [
     { required: true, message: t('auth.emailRequired'), trigger: 'blur' },
     { type: 'email', message: t('auth.emailInvalid'), trigger: 'blur' },
