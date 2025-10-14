@@ -1,14 +1,55 @@
-import { createWebHistory, createRouter, type LocationQueryRaw } from 'vue-router';import qs from 'qs';
+import { createWebHistory, createRouter,  type LocationQueryRaw } from "vue-router";
+import qs from "qs";
 
 const routes = [
     {
-        path: '/',
-        component: () => import('@/pages/Home.vue'),
-         meta: {
-            layout: 'default',
-        },
-    }
-]
+        path: "/",
+        name: "dashboard",
+        component: () => import("@/pages/Dashboard.vue"),
+    },
+
+    // Clients
+    {
+        path: "/clients",
+        name: "clients",
+        component: () => import("@/pages/Clients/ClientsList.vue"),
+    },
+    {
+        path: "/clients/:id",
+        name: "client-details",
+        component: () => import("@/pages/Clients/ClientDetails.vue"),
+    },
+
+    // Vehicles
+    {
+        path: "/vehicles",
+        name: "vehicles",
+        component: () => import("@/pages/Vehicles/VehiclesList.vue"),
+    },
+    {
+        path: "/vehicles/:id",
+        name: "vehicle-details",
+        component: () => import("@/pages/Vehicles/VehicleDetails.vue"),
+    },
+
+    // Repairs
+    {
+        path: "/repairs",
+        name: "repairs",
+        component: () => import("@/pages/Repairs/RepairsList.vue"),
+    },
+    {
+        path: "/repairs/:id",
+        name: "repair-details",
+        component: () => import("@/pages/Repairs/RepairDetails.vue"),
+    },
+
+    {
+        path: "/settings",
+        name: "settings",
+        component: () => import("@/pages/Settings.vue"),
+    },
+];
 
 function parseQuery(query: string): LocationQueryRaw {
     // Assert to match Vue Router's expected type; configure qs options if you need stricter parsing (e.g., { depth: 0 } for flat output)
@@ -16,7 +57,7 @@ function parseQuery(query: string): LocationQueryRaw {
 }
 
 function stringifyQuery(query: LocationQueryRaw): string {
-    return qs.stringify(query, { arrayFormat: 'brackets' });
+    return qs.stringify(query, { arrayFormat: "brackets" });
 }
 
 export const router = createRouter({
@@ -27,14 +68,14 @@ export const router = createRouter({
     routes,
 });
 
-router.beforeEach(async (to, from, next) => {
-    // before route entry hook
-    // permission guards go here etc.
-    next();
+router.beforeEach((to, from, next) => {
+    const { isAuthenticated } = useGlobalState();
+    if (to.name !== "Login" && !isAuthenticated.value) next({ name: "Login" });
+    else next();
 });
 
 router.afterEach(() => {
     setTimeout(() => {
-        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     }, 250);
 });

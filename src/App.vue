@@ -3,12 +3,13 @@ import { VueQueryDevtools } from "@tanstack/vue-query-devtools";
 
 import enGB from "ant-design-vue/es/locale/en_GB";
 import bgBG from "ant-design-vue/es/locale/bg_BG";
-import Home from "./pages/Home.vue";
 
 const route = useRoute();
 const { t } = useI18n();
 
 const { initLocale, locale } = useLocale();
+
+
 
 onMounted(() => {
     initLocale();
@@ -37,7 +38,9 @@ onMounted(() => {
         }"
         :locale="locale === 'bg' ? bgBG : enGB">
         <div style="width: 100%; height: 100%" v-auto-animate>
-          <Home />
+           <div style="height: 100%; display: flex; justify-content: center">
+               
+            </div>
         </div>
     </a-config-provider>
     <VueQueryDevtools />

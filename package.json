@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design-vue/use": "^0.0.1-alpha.10",
     "@ant-design/icons-vue": "^7.0.1",
     "@supabase/supabase-js": "^2.75.0",
     "@tanstack/query-persist-client-core": "^5.91.2",
