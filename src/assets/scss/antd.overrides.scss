@@ -1,0 +1,17 @@
+.ant-btn {
+    height: 38px;
+    padding: 3px 20px;
+    &.ant-btn-circle {
+        width: 38px;
+    }
+}
+
+.ant-card {
+    border-radius: 10px;
+    border: 1px solid var(--colorSplit, rgba(0, 0, 0, 0.06));
+    background: #fff;
+}
+.ant-tag {
+    padding: 3px 15px;
+    border-radius: 6px;
+}

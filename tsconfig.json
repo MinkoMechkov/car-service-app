@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "module": "ESNext",
+        "target": "ESNext",
+        "lib": ["DOM", "ESNext", "es6"],
+        "strict": false,
+        "esModuleInterop": true,
+        "jsx": "preserve",
+        "skipLibCheck": true,
+        "isolatedModules": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "noUnusedLocals": true,
+        "strictNullChecks": false,
+        "allowJs": true,
+        "types": ["vite/client"],
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": ["src"],
+    "exclude": ["node_modules"]
+}

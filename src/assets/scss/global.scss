@@ -1,0 +1,99 @@
+@use '@/assets/scss/vars.scss' as vars;
+
+:root {
+    --base-font-size: 16px;
+    --primary-color: #3498db;
+    --background-color: #f0f2f5;
+    --error-color: #db3635;
+    --light: #ffff;
+    --text-color-secondary: rgba(0, 0, 0, 0.45);
+    --text-color-tertiary: rgba(0, 0, 0, 0.65);
+    --footer-color: #999;
+
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+
+    --breakpoint-xxs: #{vars.$breakpoint-xxs};
+    --breakpoint-xs: #{vars.$breakpoint-xs};
+    --breakpoint-sm: #{vars.$breakpoint-sm};
+    --breakpoint-md: #{vars.$breakpoint-md};
+    --breakpoint-lg: #{vars.$breakpoint-lg};
+    --breakpoint-xl: #{vars.$breakpoint-xl};
+    --breakpoint-xxl: #{vars.$breakpoint-xxl};
+    --breakpoint-xxxl: #{vars.$breakpoint-xxxl};
+
+    font-family: Roboto, Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    color: rgba(0, 0, 0, 1);
+    background-color: #f7fafb;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+    overflow-y: scroll;
+}
+
+@media (max-width: #{vars.$breakpoint-md}) {
+    :root {
+        --base-font-size: 14px;
+    }
+}
+
+html,
+body,
+#app {
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    font-size: var(--base-font-size);
+    background-color: var(--background-color);
+    .ant-input,
+    .ant-input-password {
+        padding: 0.9rem 1.1rem;
+        font-size: var(--base-font-size);
+
+        &::placeholder {
+            color: #bfbfbf !important;
+        }
+        .ant-input {
+            padding: 0;
+        }
+    }
+    .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+        height: auto;
+        padding: 0.68rem 1.1rem !important;
+        display: flex;
+        align-items: center;
+    }
+    .ant-select-multiple:not(.ant-select-customize-input) .ant-select-selector {
+        padding: 0.68rem 1.1rem !important;
+        display: flex;
+        align-items: center;
+    }
+    .ant-input-group {
+        .ant-input-affix-wrapper {
+            padding: 0.8rem 1.1rem;
+        }
+        .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+            height: auto !important;
+            padding: 0.44rem 1.1rem !important;
+        }
+    }
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
