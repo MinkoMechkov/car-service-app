@@ -1,81 +1,130 @@
-import { createWebHistory, createRouter,  type LocationQueryRaw } from "vue-router";
-import qs from "qs";
+import { createRouter, createWebHistory } from 'vue-router';
+import type { RouteRecordRaw } from 'vue-router';
+import { useGlobalState } from '@/composables/useGlobalState';
+import DefaultLayout from '@/layouts/default.vue';
+import ErrorLayout from '@/layouts/error.vue';
 
-const routes = [
-    {
-        path: "/",
-        name: "dashboard",
-        component: () => import("@/pages/Dashboard.vue"),
-    },
-
-    // Clients
-    {
-        path: "/clients",
-        name: "clients",
-        component: () => import("@/pages/Clients/ClientsList.vue"),
-    },
-    {
-        path: "/clients/:id",
-        name: "client-details",
-        component: () => import("@/pages/Clients/ClientDetails.vue"),
-    },
-
-    // Vehicles
-    {
-        path: "/vehicles",
-        name: "vehicles",
-        component: () => import("@/pages/Vehicles/VehiclesList.vue"),
-    },
-    {
-        path: "/vehicles/:id",
-        name: "vehicle-details",
-        component: () => import("@/pages/Vehicles/VehicleDetails.vue"),
-    },
-
-    // Repairs
-    {
-        path: "/repairs",
-        name: "repairs",
-        component: () => import("@/pages/Repairs/RepairsList.vue"),
-    },
-    {
-        path: "/repairs/:id",
-        name: "repair-details",
-        component: () => import("@/pages/Repairs/RepairDetails.vue"),
-    },
-
-    {
-        path: "/settings",
-        name: "settings",
-        component: () => import("@/pages/Settings.vue"),
-    },
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/auth',
+    component: () => import('@/layouts/auth.vue'),
+    children: [
+      {
+        path: 'login',
+        name: 'Login',
+        component: () => import('@/pages/Auth/Login.vue'),
+        meta: { requiresGuest: true },
+      },
+      {
+        path: 'register',
+        name: 'Register',
+        component: () => import('@/pages/Auth/Register.vue'),
+        meta: { requiresGuest: true },
+      },
+      {
+        path: 'forgot-password',
+        name: 'ForgotPassword',
+        component: () => import('@/pages/Auth/ForgotPassword.vue'),
+        meta: { requiresGuest: true },
+      },
+    ],
+  },
+  {
+    path: '/',
+    component: DefaultLayout,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '',
+        name: 'Dashboard',
+        component: () => import('@/pages/Dashboard.vue'),
+      },
+      {
+        path: 'clients',
+        name: 'ClientsList',
+        component: () => import('@/pages/Clients/ClientsList.vue'),
+      },
+      {
+        path: 'clients/new',
+        name: 'ClientForm',
+        component: () => import('@/pages/Clients/ClientForm.vue'),
+      },
+      {
+        path: 'clients/:id',
+        name: 'ClientDetails',
+        component: () => import('@/pages/Clients/ClientDetails.vue'),
+      },
+      {
+        path: 'vehicles',
+        name: 'VehiclesList',
+        component: () => import('@/pages/Vehicles/VehiclesList.vue'),
+      },
+      {
+        path: 'vehicles/new',
+        name: 'VehicleForm',
+        component: () => import('@/pages/Vehicles/VehicleForm.vue'),
+      },
+      {
+        path: 'vehicles/:id',
+        name: 'VehicleDetails',
+        component: () => import('@/pages/Vehicles/VehicleDetails.vue'),
+      },
+      {
+        path: 'repairs',
+        name: 'RepairsList',
+        component: () => import('@/pages/Repairs/RepairsList.vue'),
+      },
+      {
+        path: 'repairs/new',
+        name: 'RepairForm',
+        component: () => import('@/pages/Repairs/RepairForm.vue'),
+      },
+      {
+        path: 'repairs/:id',
+        name: 'RepairDetails',
+        component: () => import('@/pages/Repairs/RepairDetails.vue'),
+      },
+      {
+        path: 'settings',
+        name: 'Settings',
+        component: () => import('@/pages/Settings.vue'),
+      },
+    ],
+  },
 ];
 
-function parseQuery(query: string): LocationQueryRaw {
-    // Assert to match Vue Router's expected type; configure qs options if you need stricter parsing (e.g., { depth: 0 } for flat output)
-    return qs.parse(query) as LocationQueryRaw;
-}
-
-function stringifyQuery(query: LocationQueryRaw): string {
-    return qs.stringify(query, { arrayFormat: "brackets" });
-}
-
 export const router = createRouter({
-    history: createWebHistory(),
-    // @ts-expect-error qs ParsedQs is incompatible with LocationQueryRaw (wontfix in vue-router)
-    parseQuery,
-    stringifyQuery,
-    routes,
+  history: createWebHistory(),
+  routes,
 });
 
-router.beforeEach((to, from, next) => {
-    const { isAuthenticated } = useGlobalState();
-    if (to.name !== "Login" && !isAuthenticated.value) next({ name: "Login" });
-    else next();
-});
+// Navigation guards
+router.beforeEach(async (to, from, next) => {
+  const { isAuthenticated, loading } = useGlobalState();
 
-router.afterEach(() => {
-    setTimeout(() => {
-        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-    }, 250);
+  // Wait for auth to initialize
+  if (loading.value) {
+    await new Promise(resolve => {
+      const unwatch = router.app?.$watch(
+        () => loading.value,
+        (newVal) => {
+          if (!newVal) {
+            unwatch?.();
+            resolve(true);
+          }
+        }
+      );
+    });
+  }
+
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
+
+  if (requiresAuth && !isAuthenticated.value) {
+    next({ name: 'Login', query: { redirect: to.fullPath } });
+  } else if (requiresGuest && isAuthenticated.value) {
+    next({ name: 'Dashboard' });
+  } else {
+    next();
+  }
 });
