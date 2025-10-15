@@ -1,1 +1,36 @@
-{}
+{
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "fullName": "Full Name",
+    "emailPlaceholder": "Enter your email",
+    "passwordPlaceholder": "Enter your password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "fullNamePlaceholder": "Enter your full name",
+    "emailRequired": "Please enter your email",
+    "emailInvalid": "Please enter a valid email",
+    "passwordRequired": "Please enter your password",
+    "passwordMin": "Password must be at least 6 characters",
+    "fullNameRequired": "Please enter your full name",
+    "confirmPasswordRequired": "Please confirm your password",
+    "passwordsNotMatch": "Passwords do not match",
+    "loginSuccess": "Login successful",
+    "loginError": "Login failed",
+    "registerSuccess": "Registration successful! Please check your email to confirm your account.",
+    "registerError": "Registration failed",
+    "noAccount": "Don't have an account? Register",
+    "hasAccount": "Already have an account? Login",
+    "forgotPassword": "Forgot password?",
+    "logoutSuccess": "Logged out successfully",
+    "logoutError": "Error logging out"
+  },
+  "common": {
+    "settings": "Settings",
+    "profile": "Profile",
+    "loadingApp": "Loading application..."
+  }
+}

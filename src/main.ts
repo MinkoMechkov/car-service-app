@@ -1,4 +1,3 @@
-
 import App from "./App.vue";
 import i18n from "./translation";
 import { createApp } from "vue";
@@ -8,7 +7,6 @@ import '@/assets/scss/main.scss';
 import 'antd-css-utilities/utility.min.css';
 import { VueQueryPlugin, QueryClient } from "@tanstack/vue-query";
 import { router } from "@/router/index";
-import { useGlobalState } from "@/composables/useGlobalState";
 
 const initApp = async () => {
     try {
@@ -30,10 +28,7 @@ const initApp = async () => {
         app.use(Antd);
         app.use(VueQueryPlugin, { queryClient });
 
-        // Initialize auth state before mounting
-        const { initAuth } = useGlobalState();
-        await initAuth();
-
+        // App will mount immediately, initState() will be called from App.vue
         app.mount("#app");
     } catch (e) {
         alert("Error initializing app");

@@ -1,1 +1,36 @@
-{}
+{
+    "auth": {
+        "login": "Вход",
+        "register": "Регистрирай се",
+        "logout": "Изход",
+        "email": "Имейл",
+        "password": "Парола",
+        "confirmPassword": "Потвърди парола",
+        "fullName": "Пълно име",
+        "emailPlaceholder": "Въведете имейла си",
+        "passwordPlaceholder": "Въведете паролата си",
+        "confirmPasswordPlaceholder": "Потвърдете паролата си",
+        "fullNamePlaceholder": "Въведете пълното си име",
+        "emailRequired": "Моля, въведете имейла си",
+        "emailInvalid": "Моля, въведете валиден имейл",
+        "passwordRequired": "Моля, въведете паролата си",
+        "passwordMin": "Паролата трябва да бъде поне 6 символа",
+        "fullNameRequired": "Моля, въведете пълното си име",
+        "confirmPasswordRequired": "Моля, потвърдете паролата си",
+        "passwordsNotMatch": "Паролите не съвпадат",
+        "loginSuccess": "Входът е успешен",
+        "loginError": "Входът е неуспешен",
+        "registerSuccess": "Регистрацията е успешна! Моля, проверете имейла си, за да потвърдите акаунта си.",
+        "registerError": "Регистрацията е неуспешна",
+        "noAccount": "Нямате акаунт? Регистрирайте се",
+        "hasAccount": "Вече имате акаунт? Влезте",
+        "forgotPassword": "Забравена парола?",
+        "logoutSuccess": "Изходът е успешен",
+        "logoutError": "Грешка при изход"
+    },
+    "common": {
+        "settings": "Настройки",
+        "profile": "Профил",
+        "loadingApp": "Зареждане на приложението..."
+    }
+}

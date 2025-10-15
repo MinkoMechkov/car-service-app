@@ -7,31 +7,32 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/auth',
     component: () => import('@/layouts/auth.vue'),
+    meta: { layout: 'auth' },
     children: [
       {
         path: 'login',
         name: 'Login',
         component: () => import('@/pages/Auth/Login.vue'),
-        meta: { requiresGuest: true },
+        meta: { requiresGuest: true, layout: 'auth' },
       },
       {
         path: 'register',
         name: 'Register',
         component: () => import('@/pages/Auth/Register.vue'),
-        meta: { requiresGuest: true },
+        meta: { requiresGuest: true, layout: 'auth' },
       },
       {
         path: 'forgot-password',
         name: 'ForgotPassword',
         component: () => import('@/pages/Auth/ForgotPassword.vue'),
-        meta: { requiresGuest: true },
+        meta: { requiresGuest: true, layout: 'auth' },
       },
     ],
   },
   {
     path: '/',
     component: DefaultLayout,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, layout: 'default' },
     children: [
       {
         path: '',
@@ -99,10 +100,18 @@ export const router = createRouter({
 
 // Navigation guards
 router.beforeEach(async (to, from, next) => {
-  const { isAuthenticated, loading } = useGlobalState();
+  const { isAuthenticated, globalLoading } = useGlobalState();
 
-  if (loading.value) {
-    await until(loading).toBe(false);
+  // Wait for auth to initialize
+  if (globalLoading.value) {
+    await new Promise(resolve => {
+      const checkLoading = setInterval(() => {
+        if (!globalLoading.value) {
+          clearInterval(checkLoading);
+          resolve(true);
+        }
+      }, 50);
+    });
   }
 
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);

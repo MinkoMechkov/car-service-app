@@ -5,7 +5,7 @@ import { supabase } from '@/utils/supabaseClient';
 // Singleton state
 const user = ref<User | null>(null);
 const session = ref<Session | null>(null);
-const loading = ref(true);
+const globalLoading = ref(true);
 const initialized = ref(false);
 
 export const useGlobalState = () => {
@@ -19,15 +19,15 @@ export const useGlobalState = () => {
     session.value = newSession;
   };
 
-  const setLoading = (value: boolean) => {
-    loading.value = value;
+  const setGlobalLoading = (value: boolean) => {
+    globalLoading.value = value;
   };
 
-  const initAuth = async () => {
+  const initState = async () => {
     if (initialized.value) return;
     
     try {
-      setLoading(true);
+      setGlobalLoading(true);
       
       // Get initial session
       const { data: { session: initialSession } } = await supabase.auth.getSession();
@@ -44,7 +44,7 @@ export const useGlobalState = () => {
     } catch (error) {
       console.error('Error initializing auth:', error);
     } finally {
-      setLoading(false);
+      setGlobalLoading(false);
     }
   };
 
@@ -63,12 +63,12 @@ export const useGlobalState = () => {
   return {
     user: computed(() => user.value),
     session: computed(() => session.value),
-    loading: computed(() => loading.value),
+    globalLoading: computed(() => globalLoading.value),
     isAuthenticated,
     setUser,
     setSession,
-    setLoading,
-    initAuth,
+    setGlobalLoading,
+    initState,
     signOut,
   };
 };

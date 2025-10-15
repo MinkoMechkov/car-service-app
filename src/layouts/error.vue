@@ -18,7 +18,6 @@ const goHome = () => router.push("/");
             class="text-center p-6 bg-white shadow-md rounded-2xl">
             <h1 class="text-5xl font-bold text-gray-800 mb-2">Oops!</h1>
             <p class="text-gray-500 mb-6">
-                <!-- English comment: Display different message depending on route name -->
                 <span v-if="route.name === 'NotFound'"
                     >The page you're looking for doesn't exist.</span
                 >
@@ -39,7 +38,6 @@ const goHome = () => router.push("/");
 </template>
 
 <style scoped>
-/* English comment: Center layout with soft colors */
 a-layout {
     display: flex;
     align-items: center;

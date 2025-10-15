@@ -30,7 +30,7 @@ const rules: Record<string, Rule[]> = {
 const onFinish = async (values: LoginCredentials) => {
   try {
     loading.value = true;
-    await authMutations.loginUser(values);
+    await authMutations.login(values);
     message.success(t('auth.loginSuccess'));
     router.push('/');
   } catch (error: any) {
