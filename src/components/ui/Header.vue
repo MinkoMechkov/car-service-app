@@ -11,10 +11,13 @@ import {
     BellOutlined,
     SearchOutlined,
     ToolOutlined,
+    GlobalOutlined,
 } from "@ant-design/icons-vue";
 import { useGlobalState } from "@/composables/useGlobalState";
 import { useI18n } from "vue-i18n";
 import { Grid } from "ant-design-vue";
+
+const { setLocale, locale } = useLocale();
 
 const useBreakpoint = Grid.useBreakpoint;
 const screens = useBreakpoint();
@@ -58,6 +61,15 @@ const handleLogout = async () => {
         message.error(error.message || t("auth.logoutError"));
     }
 };
+
+const languageMap: Record<string, string> = {
+    en: "English",
+    bg: "Български",
+};
+
+const currentLanguageLabel = computed(() => {
+    return `${languageMap[locale.value]}`;
+});
 </script>
 
 <template>
@@ -65,7 +77,7 @@ const handleLogout = async () => {
         <div class="header-container">
             <!-- Left Section: Logo & Brand -->
             <div class="header-left">
-                <div class="brand-section">
+                <router-link to="/" class="brand-section">
                     <div class="brand-icon">
                         <ToolOutlined />
                     </div>
@@ -73,7 +85,7 @@ const handleLogout = async () => {
                         <span class="brand-name">AutoRepair</span>
                         <span class="brand-tagline">Pro</span>
                     </div>
-                </div>
+                </router-link>
             </div>
 
             <!-- Center Section: Search (Desktop only) -->
@@ -163,6 +175,19 @@ const handleLogout = async () => {
                                     {{ $t("common.settings") }}
                                 </router-link>
                             </a-menu-item>
+                            <a-sub-menu
+                                key="sub1"
+                                :title="currentLanguageLabel">
+                                <template #icon>
+                                    <GlobalOutlined />
+                                </template>
+                                <a-menu-item key="en" @click="setLocale('en')"
+                                    >English</a-menu-item
+                                >
+                                <a-menu-item key="bg" @click="setLocale('bg')"
+                                    >Български</a-menu-item
+                                >
+                            </a-sub-menu>
                             <a-menu-divider />
                             <a-menu-item
                                 key="logout"
