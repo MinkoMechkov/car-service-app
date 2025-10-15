@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { motion } from "motion-v";
+import { useRoute } from "vue-router";
+
 const appName = "Auto Repair System";
 const appDescription = "Manage your auto repair business efficiently";
+const route = useRoute();
 </script>
 
 <template>
@@ -32,8 +36,14 @@ export default {
 }
 
 .auth-content {
-    max-width: 450px;
+    max-width: 600px;
     width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    transform-origin: center;
 }
 
 .auth-brand {
@@ -42,14 +52,15 @@ export default {
     margin-bottom: 32px;
 
     h1 {
-        font-size: 32px;
+        font-size: 38px;
         font-weight: 700;
         margin-bottom: 8px;
+        letter-spacing: 0.5px;
     }
 
     p {
         font-size: 16px;
-        opacity: 0.9;
+        opacity: 0.85;
     }
 }
 </style>

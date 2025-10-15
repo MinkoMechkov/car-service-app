@@ -1,60 +1,30 @@
 <script setup lang="ts">
-// Ant Design responsive grid
 import { Grid } from "ant-design-vue";
-const useBreakpoint = Grid.useBreakpoint;
-const screens = useBreakpoint();
-
-// Motion animations
 import { motion, AnimatePresence } from "motion-v";
-
-// Vue Router
 import { useRoute } from "vue-router";
-const route = useRoute();
-
-// Custom UI components (you’ll create them in /components/ui)
 import UiHeader from "@/components/ui/Header.vue";
 import UiSideMenu from "@/components/ui/SideMenu.vue";
 import UiMobileDrawer from "@/components/ui/MobileDrawer.vue";
+
+const useBreakpoint = Grid.useBreakpoint;
+const screens = useBreakpoint();
+const route = useRoute();
+
 </script>
 
 <template>
     <a-layout class="app-layout min-h-screen bg-gray-50">
         <!-- Top header -->
         <UiHeader />
-
         <!-- Main content layout -->
         <a-layout-content class="app-content flex">
             <!-- Sidebar visible only on md+ screens -->
-            <UiSideMenu v-if="screens.md" />
-
+            <!-- <UiSideMenu /> -->
             <!-- Page content -->
             <div
                 class="app-page-content flex-1 p-4 md:p-6 overflow-auto"
                 :class="{ 'pl-0': !screens.md }">
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        :key="route.fullPath"
-                        :initial="{ opacity: 0, scale: 1.02 }"
-                        :animate="{
-                            y: 0,
-                            opacity: 1,
-                            scale: 1,
-                            transition: {
-                                duration: 0.3,
-                                ease: [0.04, 0.62, 0.23, 0.98],
-                            },
-                        }"
-                        :exit="{
-                            opacity: 0,
-                            scale: 0.98,
-                            transition: {
-                                duration: 0.15,
-                                ease: [0.4, 0.0, 0.2, 1],
-                            },
-                        }">
-                        <router-view />
-                    </motion.div>
-                </AnimatePresence>
+                <router-view />
             </div>
         </a-layout-content>
 

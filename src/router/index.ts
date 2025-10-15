@@ -1,127 +1,134 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import type { RouteRecordRaw } from 'vue-router';
-import { useGlobalState } from '@/composables/useGlobalState';
-import DefaultLayout from '@/layouts/default.vue';
+import { createRouter, createWebHistory } from "vue-router";
+import type { RouteRecordRaw } from "vue-router";
+import { useGlobalState } from "@/composables/useGlobalState";
+import DefaultLayout from "@/layouts/default.vue";
 
 const routes: RouteRecordRaw[] = [
-  {
-    path: '/auth',
-    component: () => import('@/layouts/auth.vue'),
-    meta: { layout: 'auth' },
-    children: [
-      {
-        path: 'login',
-        name: 'Login',
-        component: () => import('@/pages/Auth/Login.vue'),
-        meta: { requiresGuest: true, layout: 'auth' },
-      },
-      {
-        path: 'register',
-        name: 'Register',
-        component: () => import('@/pages/Auth/Register.vue'),
-        meta: { requiresGuest: true, layout: 'auth' },
-      },
-      {
-        path: 'forgot-password',
-        name: 'ForgotPassword',
-        component: () => import('@/pages/Auth/ForgotPassword.vue'),
-        meta: { requiresGuest: true, layout: 'auth' },
-      },
-    ],
-  },
-  {
-    path: '/',
-    component: DefaultLayout,
-    meta: { requiresAuth: true, layout: 'default' },
-    children: [
-      {
-        path: '',
-        name: 'Dashboard',
-        component: () => import('@/pages/Dashboard.vue'),
-      },
-      {
-        path: 'clients',
-        name: 'ClientsList',
-        component: () => import('@/pages/Clients/ClientsList.vue'),
-      },
-      {
-        path: 'clients/new',
-        name: 'ClientForm',
-        component: () => import('@/pages/Clients/ClientForm.vue'),
-      },
-      {
-        path: 'clients/:id',
-        name: 'ClientDetails',
-        component: () => import('@/pages/Clients/ClientDetails.vue'),
-      },
-      {
-        path: 'vehicles',
-        name: 'VehiclesList',
-        component: () => import('@/pages/Vehicles/VehiclesList.vue'),
-      },
-      {
-        path: 'vehicles/new',
-        name: 'VehicleForm',
-        component: () => import('@/pages/Vehicles/VehicleForm.vue'),
-      },
-      {
-        path: 'vehicles/:id',
-        name: 'VehicleDetails',
-        component: () => import('@/pages/Vehicles/VehicleDetails.vue'),
-      },
-      {
-        path: 'repairs',
-        name: 'RepairsList',
-        component: () => import('@/pages/Repairs/RepairsList.vue'),
-      },
-      {
-        path: 'repairs/new',
-        name: 'RepairForm',
-        component: () => import('@/pages/Repairs/RepairForm.vue'),
-      },
-      {
-        path: 'repairs/:id',
-        name: 'RepairDetails',
-        component: () => import('@/pages/Repairs/RepairDetails.vue'),
-      },
-      {
-        path: 'settings',
-        name: 'Settings',
-        component: () => import('@/pages/Settings.vue'),
-      },
-    ],
-  },
+    {
+        path: "/auth",
+        component: () => import("@/layouts/auth.vue"),
+        meta: { layout: "auth" },
+        children: [
+            {
+                path: "login",
+                name: "Login",
+                component: () => import("@/pages/Auth/Login.vue"),
+                meta: { requiresGuest: true, layout: "auth" },
+            },
+            {
+                path: "register",
+                name: "Register",
+                component: () => import("@/pages/Auth/Register.vue"),
+                meta: { requiresGuest: true, layout: "auth" },
+            },
+            {
+                path: "forgot-password",
+                name: "ForgotPassword",
+                component: () => import("@/pages/Auth/ForgotPassword.vue"),
+                meta: { requiresGuest: true, layout: "auth" },
+            },
+        ],
+    },
+    {
+        path: "/",
+        component: DefaultLayout,
+        meta: { requiresAuth: true, layout: "default" },
+        children: [
+            {
+                path: "",
+                name: "Dashboard",
+                component: () => import("@/pages/Dashboard.vue"),
+            },
+            {
+                path: "clients",
+                name: "ClientsList",
+                component: () => import("@/pages/Clients/ClientsList.vue"),
+            },
+            {
+                path: "clients/new",
+                name: "ClientForm",
+                component: () => import("@/pages/Clients/ClientForm.vue"),
+            },
+            {
+                path: "clients/:id",
+                name: "ClientDetails",
+                component: () => import("@/pages/Clients/ClientDetails.vue"),
+            },
+            {
+                path: "vehicles",
+                name: "VehiclesList",
+                component: () => import("@/pages/Vehicles/VehiclesList.vue"),
+            },
+            {
+                path: "vehicles/new",
+                name: "VehicleForm",
+                component: () => import("@/pages/Vehicles/VehicleForm.vue"),
+            },
+            {
+                path: "vehicles/:id",
+                name: "VehicleDetails",
+                component: () => import("@/pages/Vehicles/VehicleDetails.vue"),
+            },
+            {
+                path: "repairs",
+                name: "RepairsList",
+                component: () => import("@/pages/Repairs/RepairsList.vue"),
+            },
+            {
+                path: "repairs/new",
+                name: "RepairForm",
+                component: () => import("@/pages/Repairs/RepairForm.vue"),
+            },
+            {
+                path: "repairs/:id",
+                name: "RepairDetails",
+                component: () => import("@/pages/Repairs/RepairDetails.vue"),
+            },
+            {
+                path: "settings",
+                name: "Settings",
+                component: () => import("@/pages/Settings.vue"),
+            },
+            {
+                path: "/:pathMatch(.*)*",
+                name: "NotFound",
+                component: () => import("@/pages/Error.vue"),
+            },
+        ],
+    },
 ];
 
 export const router = createRouter({
-  history: createWebHistory(),
-  routes,
+    history: createWebHistory(),
+    routes,
 });
 
 // Navigation guards
 router.beforeEach(async (to, from, next) => {
-  const { isAuthenticated, globalLoading } = useGlobalState();
+    const { isAuthenticated, globalLoading } = useGlobalState();
 
-  // Wait for auth to initialize
-  if (globalLoading.value) {
-    await new Promise(resolve => {
-      const checkLoading = setInterval(() => {
-        if (!globalLoading.value) {
-          clearInterval(checkLoading);
-          resolve(true);
-        }
-      }, 50);
-    });
-  }
+    // Wait for auth to initialize
+    if (globalLoading.value) {
+        await new Promise((resolve) => {
+            const checkLoading = setInterval(() => {
+                if (!globalLoading.value) {
+                    clearInterval(checkLoading);
+                    resolve(true);
+                }
+            }, 50);
+        });
+    }
 
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
+    const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+    const requiresGuest = to.matched.some(
+        (record) => record.meta.requiresGuest
+    );
 
-  if (requiresAuth && !isAuthenticated.value) {
-    next({ name: 'Login', query: { redirect: to.fullPath } });
-  } else if (requiresGuest && isAuthenticated.value) {
-    next({ name: 'Dashboard' });
-  } else {
-    next();
-  }
+    if (requiresAuth && !isAuthenticated.value) {
+        next({ name: "Login", query: { redirect: to.fullPath } });
+    } else if (requiresGuest && isAuthenticated.value) {
+        next({ name: "Dashboard" });
+    } else {
+        next();
+    }
 });

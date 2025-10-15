@@ -32,5 +32,43 @@
         "settings": "Настройки",
         "profile": "Профил",
         "loadingApp": "Зареждане на приложението..."
+    },
+    "dashboard": {
+        "welcome": "Добре дошли",
+        "todayOverview": "Ето какво се случва с вашия бизнес днес",
+        "newRepair": "Нов Ремонт",
+        "newClient": "Нов Клиент",
+        "activeRepairs": "Активни Ремонти",
+        "completedToday": "Завършени Днес",
+        "totalClients": "Общо Клиенти",
+        "revenue": "Приходи",
+        "fromLastWeek": "спрямо миналата седмица",
+        "fromLastMonth": "спрямо миналия месец",
+        "recentRepairs": "Последни Ремонти",
+        "viewAll": "Виж Всички",
+        "vehicle": "Автомобил",
+        "client": "Клиент",
+        "status": "Статус",
+        "priority": "Приоритет",
+        "date": "Дата",
+        "actions": "Действия",
+        "pendingTasks": "Предстоящи Задачи",
+        "appointments": "Срещи",
+        "revenueOverview": "Преглед на Приходите",
+        "week": "Седмица",
+        "month": "Месец",
+        "year": "Година",
+        "chartPlaceholder": "Графиката на приходите ще се покаже тук"
+    },
+    "status": {
+        "in_progress": "В Процес",
+        "pending": "Изчакващ",
+        "completed": "Завършен",
+        "cancelled": "Отменен"
+    },
+    "priority": {
+        "high": "Висок",
+        "medium": "Среден",
+        "low": "Нисък"
     }
 }

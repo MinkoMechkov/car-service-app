@@ -98,8 +98,6 @@ const onFinish = async (values: LoginCredentials) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: #f0f2f5;
   padding: 20px;
 }
 
@@ -110,7 +108,10 @@ const onFinish = async (values: LoginCredentials) => {
 
 .login-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  flex-direction: column;
+  gap: .4rem;
+  text-align: center;
   margin-top: 16px;
 }
 </style>

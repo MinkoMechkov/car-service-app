@@ -20,6 +20,7 @@
     "antd-css-utilities": "^2.1.0",
     "axios": "^1.12.2",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.23.24",
     "js-cookie": "^3.0.5",
     "motion-v": "^1.7.2",
     "pinia": "^3.0.3",
