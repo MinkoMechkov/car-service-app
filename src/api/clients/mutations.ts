@@ -1,23 +1,54 @@
-import { supabase } from "@/utils/supabaseClient";
-import type { Client } from "./interfaces";
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { supabase } from '@/utils/supabaseClient';
+import type { Client } from './interfaces';
 
-// ✅ Insert new client
-export const insertClient = async (client: Omit<Client, "id" | "created_at">) => {
-  const { data, error } = await supabase.from("clients").insert([client]).select();
-  if (error) throw error;
-  return data?.[0];
+export const useCreateClientMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (newClient: Omit<Client, 'id' | 'created_at'>) => {
+      const { data, error } = await supabase
+        .from('clients')
+        .insert(newClient)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+    },
+  });
 };
 
-// ✅ Update existing client
-export const updateClient = async (id: string, client: Partial<Client>) => {
-  const { data, error } = await supabase.from("clients").update(client).eq("id", id).select();
-  if (error) throw error;
-  return data?.[0];
+export const useUpdateClientMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (updatedClient: Partial<Client> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('clients')
+        .update(updatedClient)
+        .eq('id', updatedClient.id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+    },
+  });
 };
 
-// ✅ Delete client
-export const deleteClient = async (id: string) => {
-  const { error } = await supabase.from("clients").delete().eq("id", id);
-  if (error) throw error;
-  return true;
+export const useDeleteClientMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('clients').delete().eq('id', id);
+      if (error) throw error;
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+    },
+  });
 };

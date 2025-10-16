@@ -1,34 +1,24 @@
-import { supabase } from "@/utils/supabaseClient";
-import type { Vehicle } from "./interfaces";
+import { useQuery } from '@tanstack/vue-query';
+import { supabase } from '@/utils/supabaseClient';
+import type { Vehicle } from './interfaces';
 
-export const fetchVehicles = async (): Promise<Vehicle[]> => {
-  const { data, error } = await supabase
-    .from("vehicles")
-    .select("*")
-    .order("created_at", { ascending: false });
+export const useVehiclesQuery = () =>
+  useQuery<Vehicle[]>({
+    queryKey: ['vehicles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('vehicles').select('*');
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
 
-  if (error) throw error;
-  return data || [];
-};
-
-export const fetchVehiclesByClient = async (clientId: string): Promise<Vehicle[]> => {
-  const { data, error } = await supabase
-    .from("vehicles")
-    .select("*")
-    .eq("client_id", clientId)
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-  return data || [];
-};
-
-export const fetchVehicleById = async (id: string): Promise<Vehicle | null> => {
-  const { data, error } = await supabase
-    .from("vehicles")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error) throw error;
-  return data;
-};
+export const useVehicleQuery = (id: string) =>
+  useQuery<Vehicle>({
+    queryKey: ['vehicles', id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('vehicles').select('*').eq('id', id).single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });

@@ -1,16 +1,24 @@
-import { supabase } from "@/utils/supabaseClient";
-import type { Service } from "./interfaces";
+import { useQuery } from '@tanstack/vue-query';
+import { supabase } from '@/utils/supabaseClient';
+import type { Service } from './interfaces';
 
-// Fetch all services
-export const fetchServices = async (): Promise<Service[]> => {
-  const { data, error } = await supabase.from("services").select("*").order("name");
-  if (error) throw error;
-  return data || [];
-};
+export const useServicesQuery = () =>
+  useQuery<Service[]>({
+    queryKey: ['services'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('services').select('*');
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
 
-// Fetch service by ID
-export const fetchServiceById = async (id: string): Promise<Service | null> => {
-  const { data, error } = await supabase.from("services").select("*").eq("id", id).single();
-  if (error) throw error;
-  return data;
-};
+export const useServiceQuery = (id: string) =>
+  useQuery<Service>({
+    queryKey: ['services', id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('services').select('*').eq('id', id).single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
