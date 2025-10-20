@@ -13,10 +13,10 @@ export const useClientsQuery = () =>
   });
 
 export const useClientQuery = (id: string) =>
-  useQuery<Client>({
+  useQuery<Client | null>({
     queryKey: ['clients', id],
     queryFn: async () => {
-      const { data, error } = await supabase.from('clients').select('*').eq('id', id).single();
+      const { data, error } = await supabase.from('clients').select('*').eq('id', id).maybeSingle();
       if (error) throw error;
       return data;
     },

@@ -6,4 +6,5 @@ export interface Client {
   address?: string | null;
   notes?: string | null;
   created_at?: string | null;
+  user_id?: string | null;
 }
