@@ -31,8 +31,35 @@
     "common": {
         "settings": "Настройки",
         "profile": "Профил",
-        "loadingApp": "Зареждане на приложението..."
+    "loadingApp": "Зареждане на приложението...",
+    "back": "Назад",
+    "edit": "Редактирай",
+    "cancel": "Отказ",
+    "update": "Обнови",
+    "create": "Създай",
+    "view": "Преглед",
+    "delete": "Изтрий",
+    "confirmDelete": "Сигурни ли сте, че искате да изтриете този елемент?"
     },
+  "validation": {
+    "required": "Полето е задължително"
+  },
+  "repairs": {
+    "title": "Ремонти",
+    "new": "Нов ремонт",
+    "newTitle": "Създаване на ремонт",
+    "editTitle": "Редактиране на ремонт",
+    "vehicle": "Автомобил",
+    "client": "Клиент",
+    "status": "Статус",
+    "priority": "Приоритет",
+    "date": "Дата",
+    "totalCost": "Обща цена",
+    "mileageAtService": "Пробег при сервиз",
+    "nextServiceKm": "Следващ сервиз (км)",
+    "nextServiceDate": "Дата за следващ сервиз",
+    "description": "Описание"
+  },
     "dashboard": {
         "welcome": "Добре дошли",
         "todayOverview": "Ето какво се случва с вашия бизнес днес",
@@ -61,14 +88,15 @@
         "chartPlaceholder": "Графиката на приходите ще се покаже тук"
     },
     "status": {
-        "in_progress": "В Процес",
+        "in_progress": "В процес",
         "pending": "Изчакващ",
         "completed": "Завършен",
-        "cancelled": "Отменен"
+        "canceled": "Отменен"
     },
     "priority": {
         "high": "Висок",
         "medium": "Среден",
-        "low": "Нисък"
+        "low": "Нисък",
+        "urgent": "Спешен"
     }
 }

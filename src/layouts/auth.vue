@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { motion } from "motion-v";
-import { useRoute } from "vue-router";
 
 const appName = "Auto Repair System";
 const appDescription = "Manage your auto repair business efficiently";
-const route = useRoute();
 </script>
 
 <template>

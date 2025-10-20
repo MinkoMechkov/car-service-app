@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { Grid } from "ant-design-vue";
-import { motion, AnimatePresence } from "motion-v";
-import { useRoute } from "vue-router";
 import UiHeader from "@/components/ui/Header.vue";
-import UiSideMenu from "@/components/ui/SideMenu.vue";
 import UiMobileDrawer from "@/components/ui/MobileDrawer.vue";
 
 const useBreakpoint = Grid.useBreakpoint;
 const screens = useBreakpoint();
-const route = useRoute();
 
 </script>
 

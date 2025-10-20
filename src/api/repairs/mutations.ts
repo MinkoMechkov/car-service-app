@@ -16,6 +16,8 @@ export const useCreateRepairMutation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['repairs'] });
+      queryClient.invalidateQueries({ queryKey: ['repairsList'] });
+      queryClient.invalidateQueries({ queryKey: ['recentRepairs'] });
     },
   });
 };
@@ -33,8 +35,14 @@ export const useUpdateRepairMutation = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['repairs'] });
+      queryClient.invalidateQueries({ queryKey: ['repairsList'] });
+      queryClient.invalidateQueries({ queryKey: ['recentRepairs'] });
+      if ((data as any)?.id) {
+        queryClient.invalidateQueries({ queryKey: ['repairs', (data as any).id] });
+        queryClient.invalidateQueries({ queryKey: ['repairs', 'details', (data as any).id] });
+      }
     },
   });
 };
@@ -49,6 +57,8 @@ export const useDeleteRepairMutation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['repairs'] });
+      queryClient.invalidateQueries({ queryKey: ['repairsList'] });
+      queryClient.invalidateQueries({ queryKey: ['recentRepairs'] });
     },
   });
 };
