@@ -6,9 +6,22 @@ export const useRepairsQuery = () =>
   useQuery<Repair[]>({
     queryKey: ['repairs'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('repairs').select('*');
+      const { data, error } = await supabase
+        .from('repairs')
+        .select(`
+          *,
+          vehicle:vehicles (
+            id,
+            make,
+            model,
+            license_plate,
+            year,
+            client:clients ( id, name )
+          )
+        `)
+        .order('date', { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as any[];
     },
   });
 

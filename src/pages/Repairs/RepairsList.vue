@@ -2,8 +2,8 @@
 import { computed, h } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { useQuery } from '@tanstack/vue-query';
-import { supabase } from '@/utils/supabaseClient';
+import { useRepairsQuery } from '@/api/repairs/queries';
+
 import {
   EyeOutlined,
   EditOutlined,
@@ -37,25 +37,7 @@ interface RepairWithRelations extends Repair {
   };
 }
 
-const repairsQuery = useQuery<RepairWithRelations[]>({
-  queryKey: ['repairsList'],
-  queryFn: async () => {
-    const { data, error } = await supabase
-      .from('repairs')
-      .select(`
-        *,
-        vehicle:vehicles (
-          make,
-          model,
-          license_plate,
-          client:clients (name)
-        )
-      `)
-      .order('date', { ascending: false });
-    if (error) throw error;
-    return data ?? [];
-  },
-});
+const repairsQuery = useRepairsQuery();
 
 const deleteMutation = useDeleteRepairMutation();
 
@@ -90,7 +72,7 @@ const getPriorityStatus = (priority: string): 'error' | 'default' | 'processing'
 };
 
 const repairsData = computed(() => {
-  return repairsQuery.data.value?.map((repair) => ({
+  return (repairsQuery.data.value || []).map((repair: any) => ({
     key: repair.id,
     id: repair.id,
     vehicle: `${repair.vehicle?.make || ''} ${repair.vehicle?.model || ''}`.trim() || 'Unknown Vehicle',
@@ -100,7 +82,7 @@ const repairsData = computed(() => {
     priority: (repair as any).priority || 'low',
     date: repair.date ? dayjs(repair.date).format('YYYY-MM-DD') : '',
     total_cost: repair.total_cost,
-  })) || [];
+  }));
 });
 
 const columns: TableColumnsType = [
