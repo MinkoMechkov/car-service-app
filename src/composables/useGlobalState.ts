@@ -5,6 +5,7 @@ import { supabase } from '@/utils/supabaseClient';
 // Singleton state
 const user = ref<User | null>(null);
 const session = ref<Session | null>(null);
+const role = ref<string | null>(null); // <-- добавяме роля
 const globalLoading = ref(true);
 const initialized = ref(false);
 
@@ -19,25 +20,58 @@ export const useGlobalState = () => {
     session.value = newSession;
   };
 
+  const setRole = (newRole: string | null) => {
+    role.value = newRole;
+  };
+
   const setGlobalLoading = (value: boolean) => {
     globalLoading.value = value;
   };
 
+  const fetchUserRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      return data?.role ?? null;
+    } catch (err) {
+      console.error('Error fetching user role:', err);
+      return null;
+    }
+  };
+
   const initState = async () => {
     if (initialized.value) return;
-    
+
     try {
       setGlobalLoading(true);
-      
+
       // Get initial session
       const { data: { session: initialSession } } = await supabase.auth.getSession();
       setSession(initialSession);
       setUser(initialSession?.user ?? null);
 
+      // Fetch role if user exists
+      if (initialSession?.user) {
+        const userRole = await fetchUserRole(initialSession.user.id);
+        setRole(userRole);
+      }
+
       // Listen for auth changes
-      supabase.auth.onAuthStateChange((_event, newSession) => {
+      supabase.auth.onAuthStateChange(async (_event, newSession) => {
         setSession(newSession);
         setUser(newSession?.user ?? null);
+
+        if (newSession?.user) {
+          const userRole = await fetchUserRole(newSession.user.id);
+          setRole(userRole);
+        } else {
+          setRole(null);
+        }
       });
 
       initialized.value = true;
@@ -54,6 +88,7 @@ export const useGlobalState = () => {
       if (error) throw error;
       setUser(null);
       setSession(null);
+      setRole(null);
     } catch (error) {
       console.error('Error signing out:', error);
       throw error;
@@ -63,10 +98,12 @@ export const useGlobalState = () => {
   return {
     user: computed(() => user.value),
     session: computed(() => session.value),
+    role: computed(() => role.value), 
     globalLoading: computed(() => globalLoading.value),
     isAuthenticated,
     setUser,
     setSession,
+    setRole,
     setGlobalLoading,
     initState,
     signOut,

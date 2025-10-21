@@ -32,7 +32,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const router = useRouter();
-const { user, signOut } = useGlobalState();
+const { user, role , signOut } = useGlobalState();
 
 const userName = computed(() => {
     return (
@@ -139,7 +139,7 @@ const currentLanguageLabel = computed(() => {
                         </a-avatar>
                         <div v-if="screens.md" class="user-info">
                             <span class="user-name">{{ userName }}</span>
-                            <span class="user-role">Administrator</span>
+                            <span class="user-role">{{ role }}</span>
                         </div>
                         <DownOutlined v-if="screens.md" class="dropdown-icon" />
                     </div>
