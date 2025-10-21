@@ -89,6 +89,7 @@
         "todayOverview": "Here's what's happening with your business today",
         "newRepair": "New Repair",
         "newClient": "New Client",
+        "newVehicle": "New Vehicle",
         "activeRepairs": "Active Repairs",
         "completedToday": "Completed Today",
         "totalClients": "Total Clients",

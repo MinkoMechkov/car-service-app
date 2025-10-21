@@ -259,6 +259,12 @@ const editRepair = (id: string) => {
                         {{ $t("dashboard.newClient") }}
                     </a-button>
                 </router-link>
+                <router-link to="/clients/new">
+                    <a-button size="large">
+                        <template #icon><CarOutlined /></template>
+                        {{ $t("dashboard.newVehicle") }}
+                    </a-button>
+                </router-link>
             </div>
         </div>
 
@@ -711,6 +717,9 @@ const editRepair = (id: string) => {
 .pending-tasks-card {
     :deep(.ant-card-body) {
         padding: 0;
+    }
+    :deep(.ant-list-item-meta){
+        align-items: center;
     }
 }
 
