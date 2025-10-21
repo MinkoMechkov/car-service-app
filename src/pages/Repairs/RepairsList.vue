@@ -194,9 +194,3 @@ const handleNewRepair = () => {
     </a-card>
   </div>
 </template>
-
-<style scoped lang="scss">
-.repair-list {
-  padding: 24px;
-}
-</style>

@@ -69,11 +69,3 @@ const goEdit = () => router.push(`/repairs/${id.value}/edit`);
     </a-card>
   </div>
 </template>
-
-<style scoped lang="scss">
-.repair-details {
-  padding: 24px;
-}
-</style>
-
-

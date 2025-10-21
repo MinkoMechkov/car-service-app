@@ -246,17 +246,19 @@ const editRepair = (id: string) => {
                 </p>
             </div>
             <div class="quick-actions">
-                <a-button
-                    type="primary"
-                    size="large"
-                    @click="router.push('/repairs/new')">
-                    <template #icon><PlusOutlined /></template>
-                    {{ $t("dashboard.newRepair") }}
-                </a-button>
-                <a-button size="large" @click="router.push('/clients/new')">
-                    <template #icon><UserAddOutlined /></template>
-                    {{ $t("dashboard.newClient") }}
-                </a-button>
+                <router-link to="/repairs/new">
+                    <a-button type="primary" size="large">
+                        <template #icon><PlusOutlined /></template>
+                        {{ $t("dashboard.newRepair") }}
+                    </a-button>
+                </router-link>
+
+                <router-link to="/clients/new">
+                    <a-button size="large">
+                        <template #icon><UserAddOutlined /></template>
+                        {{ $t("dashboard.newClient") }}
+                    </a-button>
+                </router-link>
             </div>
         </div>
 
@@ -308,26 +310,32 @@ const editRepair = (id: string) => {
             </a-col>
 
             <a-col :xs="24" :sm="12" :lg="6">
-                <a-card class="stat-card stat-card-orange" :bordered="false">
-                    <div class="stat-content">
-                        <div class="stat-icon">
-                            <TeamOutlined />
-                        </div>
-                        <div class="stat-info">
-                            <p class="stat-label">
-                                {{ $t("dashboard.totalClients") }}
-                            </p>
-                            <h2 class="stat-value">{{ totalClients }}</h2>
-                            <div class="stat-trend positive">
-                                <ArrowUpOutlined />
-                                <span
-                                    >5%
-                                    {{ $t("dashboard.fromLastMonth") }}</span
-                                >
+                <router-link to="/clients">
+                    <a-card
+                        class="stat-card stat-card-orange"
+                        :bordered="false">
+                        <div class="stat-content">
+                            <div class="stat-icon">
+                                <TeamOutlined />
+                            </div>
+                            <div class="stat-info">
+                                <p class="stat-label">
+                                    {{ $t("dashboard.totalClients") }}
+                                </p>
+                                <h2 class="stat-value">{{ totalClients }}</h2>
+                                <div class="stat-trend positive">
+                                    <ArrowUpOutlined />
+                                    <span
+                                        >5%
+                                        {{
+                                            $t("dashboard.fromLastMonth")
+                                        }}</span
+                                    >
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </a-card>
+                    </a-card>
+                </router-link>
             </a-col>
 
             <a-col :xs="24" :sm="12" :lg="6">
@@ -507,7 +515,7 @@ const editRepair = (id: string) => {
 
 <style scoped lang="scss">
 .dashboard-container {
-    padding: 24px;
+    padding: 24px 0;
     background: #f0f2f5;
     min-height: calc(100vh - 64px);
 }

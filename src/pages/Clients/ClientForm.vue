@@ -94,9 +94,3 @@ const cancel = () => router.back();
   </div>
   
 </template>
-
-<style scoped lang="scss">
-.client-form { padding: 24px; }
-</style>
-
-

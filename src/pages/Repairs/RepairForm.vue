@@ -187,10 +187,4 @@ const submitting = computed(() => createMutation.isPending.value || updateMutati
   
 </template>
 
-<style scoped lang="scss">
-.repair-form {
-  padding: 24px;
-}
-</style>
-
 

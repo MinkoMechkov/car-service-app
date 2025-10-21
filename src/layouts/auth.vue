@@ -1,11 +1,10 @@
 <script setup lang="ts">
-
 const appName = "Auto Repair System";
 const appDescription = "Manage your auto repair business efficiently";
 </script>
 
 <template>
-    <div class="auth-layout">
+    <div class="auth-layout-inner">
         <div class="auth-content">
             <div class="auth-brand">
                 <h1>{{ appName }}</h1>
@@ -15,12 +14,6 @@ const appDescription = "Manage your auto repair business efficiently";
         </div>
     </div>
 </template>
-
-<script lang="ts">
-export default {
-    name: "auth-layout",
-};
-</script>
 
 <style scoped lang="scss">
 .auth-layout {

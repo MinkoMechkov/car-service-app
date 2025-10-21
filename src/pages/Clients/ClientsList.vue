@@ -61,9 +61,3 @@ const handleNew = () => router.push('/clients/new');
   </div>
   
 </template>
-
-<style scoped lang="scss">
-.clients-list { padding: 24px; }
-</style>
-
-

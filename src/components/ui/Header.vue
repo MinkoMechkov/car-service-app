@@ -32,7 +32,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const router = useRouter();
-const { user, role , signOut } = useGlobalState();
+const { user, role, signOut } = useGlobalState();
 
 const userName = computed(() => {
     return (
@@ -210,20 +210,24 @@ const currentLanguageLabel = computed(() => {
     padding: 0 24px;
     height: 82px;
     line-height: 72px;
+    border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    position: sticky;
-    top: 0;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 4rem); // matches .app-layout margin: 0 2rem;
+    max-width: 1920px;
     z-index: 1000;
-    border-bottom: 1px solid #f0f0f0;
 }
 
 .header-container {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 60px;
     height: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .header-left {

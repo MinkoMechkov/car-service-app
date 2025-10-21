@@ -1,37 +1,34 @@
 import { createRouter, createWebHistory } from "vue-router";
 import type { RouteRecordRaw } from "vue-router";
 import { useGlobalState } from "@/composables/useGlobalState";
-import DefaultLayout from "@/layouts/default.vue";
 
 const routes: RouteRecordRaw[] = [
     {
         path: "/auth",
-        component: () => import("@/layouts/auth.vue"),
-        meta: { layout: "auth" },
+        meta: { layout: "authentication" },
         children: [
             {
                 path: "login",
                 name: "Login",
                 component: () => import("@/pages/Auth/Login.vue"),
-                meta: { requiresGuest: true, layout: "auth" },
+                meta: { requiresGuest: true },
             },
             {
                 path: "register",
                 name: "Register",
                 component: () => import("@/pages/Auth/Register.vue"),
-                meta: { requiresGuest: true, layout: "auth" },
+                meta: { requiresGuest: true },
             },
             {
                 path: "forgot-password",
                 name: "ForgotPassword",
                 component: () => import("@/pages/Auth/ForgotPassword.vue"),
-                meta: { requiresGuest: true, layout: "auth" },
+                meta: { requiresGuest: true },
             },
         ],
     },
     {
         path: "/",
-        component: DefaultLayout,
         meta: { requiresAuth: true, layout: "default" },
         children: [
             {

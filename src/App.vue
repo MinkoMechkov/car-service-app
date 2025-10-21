@@ -2,8 +2,6 @@
 import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { VueQueryDevtools } from "@tanstack/vue-query-devtools";
-import { motion, AnimatePresence } from "motion-v";
-
 import enGB from "ant-design-vue/es/locale/en_GB";
 import bgBG from "ant-design-vue/es/locale/bg_BG";
 import { useLocale } from "@/composables/useLocale";
@@ -16,40 +14,16 @@ const { t } = useI18n();
 const { initLocale, locale } = useLocale();
 const { initState, globalLoading } = useGlobalState();
 
+const layout = computed<string>(() => {
+    return route.meta.layout + '-layout';
+});
+
 onMounted(() => {
     initLocale();
     initState();
 });
 
-const variants = computed(() => {
-    const isAuth = route.meta.layout === "auth";
 
-    return {
-        initial: isAuth
-            ? { opacity: 0, y: 20, scale: 0.98, filter: "blur(8px)" }
-            : { opacity: 0, y: 30, scale: 0.98 },
-        animate: {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            filter: "blur(0px)",
-            transition: {
-                duration: 0.5,
-                ease: [0.22, 1, 0.36, 1], // smoother spring-like easing
-            },
-        },
-        exit: {
-            opacity: 0,
-            y: -20,
-            scale: 0.98,
-            filter: "blur(6px)",
-            transition: {
-                duration: 0.25,
-                ease: [0.4, 0, 0.2, 1],
-            },
-        },
-    };
-});
 </script>
 
 <template>
@@ -88,24 +62,10 @@ const variants = computed(() => {
                 <a-spin size="large" />
                 <h2>{{ t("common.loadingApp") }}</h2>
             </div>
-            <AnimatePresence mode="wait" v-else v-auto-animate>
-                <motion.div
-                    :key="route.fullPath"
-                    :initial="variants.initial"
-                    :animate="variants.animate"
-                    :exit="variants.exit">
-                    <router-view />
-                </motion.div>
-            </AnimatePresence>
+             <div style="height: 100%; display: flex; justify-content: center" v-else v-auto-animate>
+                <component :is="layout"></component>
+            </div>
         </div>
     </a-config-provider>
     <VueQueryDevtools />
 </template>
-
-<style>
-#app {
-    font-family: "Roboto", sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-</style>

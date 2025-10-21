@@ -69,6 +69,21 @@
     "description": "Description",
     "actions":"Actions"
   },
+   "clients": {
+    "title": "Clients",
+    "new": "New Client",
+    "newTitle": "New Client",
+    "editTitle": "Edit Client",
+    "name": "Name",
+    "phone": "Phone",
+    "address": "Address",
+    "email": "Email",
+    "notes": "Notes",
+    "created": "Client created",
+    "updated": "Client updated",
+    "deleted": "Client deleted",
+    "errorLoading": "Failed to load clients"
+  },
     "dashboard": {
         "welcome": "Welcome back",
         "todayOverview": "Here's what's happening with your business today",

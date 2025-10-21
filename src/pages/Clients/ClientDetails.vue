@@ -45,9 +45,3 @@ const goEdit = () => router.push(`/clients/${id.value}/edit`);
     </a-card>
   </div>
 </template>
-
-<style scoped lang="scss">
-.client-details { padding: 24px; }
-</style>
-
-
