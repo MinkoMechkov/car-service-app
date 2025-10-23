@@ -65,7 +65,6 @@ export const useGlobalState = () => {
 
             // Listen for auth changes (SYNCHRONOUS callback only!)
             supabase.auth.onAuthStateChange((event, newSession) => {
-                // Remove 'async'
                 setSession(newSession);
                 setUser(newSession?.user ?? null);
 

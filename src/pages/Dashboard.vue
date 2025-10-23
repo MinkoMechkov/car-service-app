@@ -29,6 +29,7 @@ import type { Client } from "@/api/clients/interfaces";
 import type { Vehicle } from "@/api/vehicles/interfaces";
 import { useClientsQuery } from "@/api/clients/queries";
 import { useRepairsQuery } from "@/api/repairs/queries";
+import { useVehiclesQuery } from "@/api/vehicles/queries";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -42,6 +43,9 @@ const userName = computed(() => {
         "User"
     );
 });
+
+const vehiclesQuery = useVehiclesQuery();
+const totalVehicles = computed(() => vehiclesQuery.data.value?.length ?? 0);
 
 interface RecentRepair extends Repair {
     vehicle: Pick<Vehicle, "make" | "model" | "license_plate"> & {
@@ -259,7 +263,7 @@ const editRepair = (id: string) => {
                         {{ $t("dashboard.newClient") }}
                     </a-button>
                 </router-link>
-                <router-link to="/clients/new">
+                <router-link to="/vehicles/new">
                     <a-button size="large">
                         <template #icon><CarOutlined /></template>
                         {{ $t("dashboard.newVehicle") }}
@@ -270,7 +274,7 @@ const editRepair = (id: string) => {
 
         <!-- Stats Cards -->
         <a-row :gutter="[16, 16]" class="stats-row">
-            <a-col :xs="24" :sm="12" :lg="6">
+            <a-col :xs="24" :sm="12" :md="8" :lg="8">
                 <a-card class="stat-card stat-card-blue" :bordered="false">
                     <div class="stat-content">
                         <div class="stat-icon">
@@ -293,7 +297,7 @@ const editRepair = (id: string) => {
                 </a-card>
             </a-col>
 
-            <a-col :xs="24" :sm="12" :lg="6">
+            <a-col :xs="24" :sm="12" :md="8" :lg="8">
                 <a-card class="stat-card stat-card-green" :bordered="false">
                     <div class="stat-content">
                         <div class="stat-icon">
@@ -314,8 +318,30 @@ const editRepair = (id: string) => {
                     </div>
                 </a-card>
             </a-col>
-
-            <a-col :xs="24" :sm="12" :lg="6">
+           
+            <a-col :xs="24" :sm="12" :md="8" :lg="8">
+                <a-card class="stat-card stat-card-purple" :bordered="false">
+                    <div class="stat-content">
+                        <div class="stat-icon">
+                            <DollarOutlined />
+                        </div>
+                        <div class="stat-info">
+                            <p class="stat-label">
+                                {{ $t("dashboard.revenue") }}
+                            </p>
+                            <h2 class="stat-value">{{ revenueFormatted }}</h2>
+                            <div class="stat-trend positive">
+                                <ArrowUpOutlined />
+                                <span
+                                    >15%
+                                    {{ $t("dashboard.fromLastMonth") }}</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </a-card>
+            </a-col>
+             <a-col :xs="24" :sm="12" :md="8" :lg="8">
                 <router-link to="/clients">
                     <a-card
                         class="stat-card stat-card-orange"
@@ -344,22 +370,47 @@ const editRepair = (id: string) => {
                 </router-link>
             </a-col>
 
-            <a-col :xs="24" :sm="12" :lg="6">
-                <a-card class="stat-card stat-card-purple" :bordered="false">
+            <a-col :xs="24" :sm="12" :md="8" :lg="8">
+                <router-link to="/vehicles">
+                    <a-card class="stat-card stat-card-teal" :bordered="false">
+                        <div class="stat-content">
+                            <div class="stat-icon">
+                                <CarOutlined />
+                            </div>
+                            <div class="stat-info">
+                                <p class="stat-label">
+                                    {{ $t("dashboard.totalVehicles") }}
+                                </p>
+                                <h2 class="stat-value">{{ totalVehicles }}</h2>
+                                <div class="stat-trend positive">
+                                    <ArrowUpOutlined />
+                                    <span
+                                        >3%
+                                        {{
+                                            $t("dashboard.fromLastMonth")
+                                        }}</span
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                    </a-card>
+                </router-link>
+            </a-col>
+            <a-col :xs="24" :sm="12" :md="8" :lg="8">
+                <a-card class="stat-card stat-card-green" :bordered="false">
                     <div class="stat-content">
                         <div class="stat-icon">
-                            <DollarOutlined />
+                            <ClockCircleOutlined />
                         </div>
                         <div class="stat-info">
                             <p class="stat-label">
-                                {{ $t("dashboard.revenue") }}
+                                {{ $t("dashboard.pendingTasks") }}
                             </p>
-                            <h2 class="stat-value">{{ revenueFormatted }}</h2>
+                            <h2 class="stat-value">{{ completedToday }}</h2>
                             <div class="stat-trend positive">
                                 <ArrowUpOutlined />
                                 <span
-                                    >15%
-                                    {{ $t("dashboard.fromLastMonth") }}</span
+                                    >8% {{ $t("dashboard.fromLastWeek") }}</span
                                 >
                             </div>
                         </div>
@@ -668,6 +719,15 @@ const editRepair = (id: string) => {
         padding: 24px;
     }
 }
+.stat-card-teal {
+    .stat-icon {
+        background: linear-gradient(
+            135deg,
+            #4facfe 0%,
+            #00f2fe 100%
+        ); 
+    }
+}
 
 // Table Styles
 .modern-table {
@@ -718,7 +778,7 @@ const editRepair = (id: string) => {
     :deep(.ant-card-body) {
         padding: 0;
     }
-    :deep(.ant-list-item-meta){
+    :deep(.ant-list-item-meta) {
         align-items: center;
     }
 }
