@@ -2,9 +2,7 @@
 import { computed, h } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { useQuery } from "@tanstack/vue-query";
-import { supabase } from "@/utils/supabaseClient";
-import { useAdminOffers } from "@/api/offers/queries";
+import { useAdminOffersList } from "@/api/offers/queries";
 import {
     EyeOutlined,
     EditOutlined,
@@ -13,7 +11,6 @@ import {
 } from "@ant-design/icons-vue";
 import { Space, Button, Tooltip, Tag } from "ant-design-vue";
 import type { TableColumnsType } from "ant-design-vue";
-import type { Offer } from "@/api/offers/interfaces";
 import { useGlobalState } from "@/composables/useGlobalState";
 import dayjs from "dayjs";
 
@@ -25,37 +22,7 @@ const { user, role } = useGlobalState();
 // Get current admin ID
 const currentAdminId = computed<string | null>(() => user.value?.id ?? null);
 
-interface OfferWithClient extends Offer {
-    client?: {
-        name: string;
-        email: string;
-    };
-}
-
-const offersQuery = useQuery<OfferWithClient[]>({
-    queryKey: ["adminOffersList", currentAdminId.value],
-    queryFn: async () => {
-        const { data, error } = await supabase
-            .from("offers")
-            .select(
-            `
-                *,
-                client:clients!offers_client_id_fkey (
-                id,
-                name,
-                email
-                ),
-                parts:offer_parts(*),
-                services:offer_services(*)
-            `
-            )
-            .eq("admin_id", currentAdminId.value)
-            .order("created_at", { ascending: false });
-
-        if (error) throw error;
-        return data as any;
-    },
-});
+const offersQuery = useAdminOffersList(currentAdminId.value!);
 
 const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
@@ -83,7 +50,7 @@ const dataSource = computed(
 
 const columns: TableColumnsType = [
     {
-        title: t("offers.title") || "Title",
+        title: t("offers.offerTitle") || "Title",
         key: "title",
         sorter: (a: any, b: any) => a.title.localeCompare(b.title),
         customRender: ({ record }: any) =>

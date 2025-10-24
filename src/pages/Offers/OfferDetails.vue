@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import { computed, h } from "vue";
+import { computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useI18n } from "vue-i18n";
-import { useQuery } from "@tanstack/vue-query";
-import { supabase } from "@/utils/supabaseClient";
-import { message, Modal } from "ant-design-vue";
 import {
     EditOutlined,
     ArrowLeftOutlined,
@@ -13,57 +9,17 @@ import {
     CalendarOutlined,
     CheckCircleOutlined,
     CloseCircleOutlined,
-    DollarOutlined,
     ToolOutlined,
     AppstoreOutlined,
 } from "@ant-design/icons-vue";
-import type { Offer } from "@/api/offers/interfaces";
+import { useOfferDetails } from "@/api/offers/queries";
 import dayjs from "dayjs";
-
-const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 
 const offerId = computed(() => route.params.id as string);
 
-interface OfferWithRelations extends Offer {
-    client?: {
-        id: string;
-        full_name: string;
-    };
-    admin?: {
-        id: string;
-        full_name: string;
-    };
-}
-
-const offerQuery = useQuery<OfferWithRelations>({
-    queryKey: ["offerDetails", offerId.value],
-    queryFn: async () => {
-        const { data, error } = await supabase
-            .from("offers")
-            .select(
-                `
-        *,
-        client:clients!offers_client_id_fkey (
-          id,
-          name
-        ),
-        admin:profiles!offers_admin_id_fkey (
-          id,
-          full_name
-        ),
-        parts:offer_parts(*),
-        services:offer_services(*)
-      `
-            )
-            .eq("id", offerId.value)
-            .single();
-        if (error) throw error;
-        return data;
-    },
-    enabled: !!offerId.value,
-});
+const offerQuery = useOfferDetails(offerId.value);
 
 const offer = computed(() => offerQuery.data.value);
 
@@ -318,7 +274,7 @@ const handleClientClick = () => {
                                 <UserOutlined class="client-icon" />
                                 <div class="client-details">
                                     <h3 class="client-name">
-                                        {{ offer.client.full_name }}
+                                        {{ offer.client.name }}
                                     </h3>
                                 </div>
                                 <ArrowLeftOutlined
@@ -535,5 +491,262 @@ const handleClientClick = () => {
 .header-actions {
     display: flex;
     gap: 12px;
+
+    .ant-btn {
+        border-radius: 8px;
+        height: 40px;
+        padding: 0 20px;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(24, 144, 255, 0.2);
+
+        &:hover {
+            box-shadow: 0 4px 8px rgba(24, 144, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        transition: all 0.3s ease;
+    }
+}
+
+.info-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    margin-bottom: 24px;
+
+    :deep(.ant-card-head) {
+        border-bottom: 1px solid #f0f0f0;
+        padding: 16px 20px;
+
+        .ant-card-head-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+        }
+    }
+
+    :deep(.ant-card-body) {
+        padding: 20px;
+    }
+}
+
+.description-text {
+    color: #595959;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.items-table {
+    .table-header {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 16px;
+        padding: 12px 16px;
+        background: #fafafa;
+        border-radius: 8px;
+        font-weight: 600;
+        color: #262626;
+        font-size: 13px;
+        margin-bottom: 8px;
+
+        &.service-header {
+            grid-template-columns: 2fr 1fr;
+        }
+    }
+
+    .table-body {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .table-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 16px;
+        padding: 12px 16px;
+        background: #fafafa;
+        border-radius: 6px;
+        align-items: center;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: #f0f5ff;
+        }
+
+        &.service-row {
+            grid-template-columns: 2fr 1fr;
+        }
+    }
+
+    .col-name,
+    .col-name-service {
+        color: #262626;
+        font-weight: 500;
+    }
+
+    .col-quantity,
+    .col-price,
+    .col-total {
+        text-align: right;
+        color: #595959;
+        font-weight: 500;
+    }
+
+    .col-total {
+        color: #52c41a;
+        font-weight: 600;
+    }
+}
+
+.client-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #fafafa;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: #f0f5ff;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15);
+    }
+
+    .client-icon {
+        font-size: 20px;
+        color: #1890ff;
+    }
+
+    .client-details {
+        flex: 1;
+
+        .client-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+            margin: 0;
+        }
+    }
+
+    .client-arrow {
+        color: #8c8c8c;
+        font-size: 14px;
+    }
+}
+
+.cost-list {
+    .cost-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        &.total {
+            padding: 16px 0;
+            border-top: 2px solid #1890ff;
+            border-bottom: none;
+            margin-top: 8px;
+
+            .cost-label {
+                font-size: 16px;
+                font-weight: 600;
+                color: #262626;
+            }
+
+            .cost-value {
+                font-size: 20px;
+                font-weight: 700;
+                color: #1890ff;
+            }
+        }
+
+        .cost-label {
+            color: #595959;
+            font-size: 14px;
+        }
+
+        .cost-value {
+            color: #262626;
+            font-weight: 600;
+            font-size: 14px;
+        }
+    }
+}
+
+.timeline-list {
+    .timeline-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 0;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .timeline-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #1890ff;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            flex: 1;
+
+            .timeline-title {
+                font-size: 14px;
+                font-weight: 500;
+                color: #262626;
+                margin-bottom: 4px;
+            }
+
+            .timeline-date {
+                font-size: 13px;
+                color: #8c8c8c;
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .header-left {
+        width: 100%;
+    }
+
+    .items-table {
+        .table-header,
+        .table-row {
+            grid-template-columns: 1fr;
+            gap: 8px;
+            text-align: left;
+
+            .col-quantity,
+            .col-price,
+            .col-total {
+                text-align: left;
+            }
+        }
+    }
+
+    .client-card {
+        padding: 12px;
+    }
 }
 </style>
