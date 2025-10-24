@@ -16,6 +16,7 @@ export const useCreatePartMutation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parts'] });
+      queryClient.invalidateQueries({ queryKey: ['parts_catalog'] });
     },
   });
 };

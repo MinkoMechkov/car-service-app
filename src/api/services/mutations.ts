@@ -16,6 +16,7 @@ export const useCreateServiceMutation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['services'] });
+      queryClient.invalidateQueries({ queryKey: ['services_catalog'] });
     },
   });
 };
