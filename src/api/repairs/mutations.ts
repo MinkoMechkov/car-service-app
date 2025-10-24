@@ -14,10 +14,13 @@ export const useCreateRepairMutation = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['repairs'] });
       queryClient.invalidateQueries({ queryKey: ['repairsList'] });
       queryClient.invalidateQueries({ queryKey: ['recentRepairs'] });
+      if (data?.vehicle_id) {
+        queryClient.invalidateQueries({ queryKey: ['vehicleDetails', data.vehicle_id] });
+      }
     },
   });
 };
@@ -42,6 +45,9 @@ export const useUpdateRepairMutation = () => {
       if ((data as any)?.id) {
         queryClient.invalidateQueries({ queryKey: ['repairs', (data as any).id] });
         queryClient.invalidateQueries({ queryKey: ['repairs', 'details', (data as any).id] });
+      }
+      if (data?.vehicle_id) {
+        queryClient.invalidateQueries({ queryKey: ['vehicleDetails', data.vehicle_id] });
       }
     },
   });
