@@ -114,7 +114,8 @@
         "month": "Month",
         "year": "Year",
         "chartPlaceholder": "Revenue chart will be displayed here",
-        "totalVehicles": "Total Vehicles"
+        "totalVehicles": "Total Vehicles",
+        "newOffer": "New Offer"
     },
     "status": {
         "in_progress": "In Progress",

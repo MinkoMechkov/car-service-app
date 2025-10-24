@@ -66,8 +66,8 @@ const routes: RouteRecordRaw[] = [
                 name: "VehicleForm",
                 component: () => import("@/pages/Vehicles/VehicleForm.vue"),
             },
-             {
-               path: "vehicles/:id/edit",
+            {
+                path: "vehicles/:id/edit",
                 name: "VehicleEdit",
                 component: () => import("@/pages/Vehicles/VehicleForm.vue"),
             },
@@ -90,6 +90,31 @@ const routes: RouteRecordRaw[] = [
                 path: "repairs/:id/edit",
                 name: "RepairEdit",
                 component: () => import("@/pages/Repairs/RepairForm.vue"),
+            },
+            {
+                path: "repairs/:id",
+                name: "RepairDetails",
+                component: () => import("@/pages/Repairs/RepairDetails.vue"),
+            },
+            {
+                path: "offers",
+                name: "OffersList",
+                component: () => import("@/pages/Offers/OffersList.vue"),
+            },
+            {
+                path: "offers/new",
+                name: "OfferForm",
+                component: () => import("@/pages/Offers/OfferForm.vue"),
+            },
+            {
+                path: "offers/:id",
+                name: "OfferDetails",
+                component: () => import("@/pages/Offers/OfferDetails.vue"),
+            },
+            {
+                path: "offers/:id/edit",
+                name: "OfferEdit",
+                component: () => import("@/pages/Offers/OfferForm.vue"),
             },
             {
                 path: "repairs/:id",

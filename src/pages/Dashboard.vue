@@ -269,6 +269,12 @@ const editRepair = (id: string) => {
                         {{ $t("dashboard.newVehicle") }}
                     </a-button>
                 </router-link>
+                 <router-link to="/offers/new">
+                    <a-button size="large">
+                        <template #icon><FileTextOutlined /></template>
+                        {{ $t("dashboard.newOffer") }}
+                    </a-button>
+                </router-link>
             </div>
         </div>
 
