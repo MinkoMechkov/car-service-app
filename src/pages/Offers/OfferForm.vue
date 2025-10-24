@@ -630,7 +630,7 @@ const newServiceRules = computed<Record<string, RuleObject[]>>(() => ({
                                                         block
                                                         @click="showAddServiceModalHandler">
                                                         <template #icon>
-                                                            <PlusCircleOutlined />  <!-- ✅ No h() needed -->
+                                                            <PlusCircleOutlined /> 
                                                         </template>
                                                         {{ $t("offers.addNewService") || "Add New Service" }}
                                                     </a-button>
