@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { message } from "ant-design-vue";
 import { useCreateOffer, useUpdateOffer } from "@/api/offers/mutations";
-import { usePartsCatalog, useServicesCatalog, useOfferDetails } from "@/api/offers/queries";
+import {
+    usePartsCatalog,
+    useServicesCatalog,
+    useOfferDetails,
+} from "@/api/offers/queries";
 import { useCreatePartMutation } from "@/api/parts/mutations";
 import { useCreateServiceMutation } from "@/api/services/mutations";
 import {
@@ -17,13 +21,24 @@ import {
 import { RuleObject } from "ant-design-vue/es/form";
 import type { SelectValue } from "ant-design-vue/es/select";
 import { useClientsQuery } from "@/api/clients/queries";
-import { useGlobalState } from "@/composables/useGlobalState";
 
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 
-const { user } = useGlobalState();
+const { user, role, userId } = useGlobalState();
+const isAdmin = computed(() => role.value === "admin");
+
+useOffersRealtimeSync(userId.value, role.value);
+
+onMounted(() => {
+    if (!isAdmin.value) {
+        message.error(
+            t("offers.accessDenied") || "You cannot create/edit offers."
+        );
+        router.push("/offers");
+    }
+});
 
 // Get current admin ID
 const currentAdminId = computed<string | null>(() => user.value?.id ?? null);
@@ -96,7 +111,7 @@ watch(
 
             // Populate parts
             if (offer.parts && offer.parts.length > 0) {
-                parts.value = offer.parts.map(part => ({
+                parts.value = offer.parts.map((part) => ({
                     name: part.name,
                     part_id: part.part_id || undefined,
                     quantity: part.quantity,
@@ -106,7 +121,7 @@ watch(
 
             // Populate services
             if (offer.services && offer.services.length > 0) {
-                services.value = offer.services.map(service => ({
+                services.value = offer.services.map((service) => ({
                     name: service.name,
                     service_id: service.service_id || undefined,
                     price: service.price,
@@ -209,9 +224,9 @@ const totalAmount = computed(() => {
     return partsTotal + servicesTotal + (formState.value.labor_cost || 0);
 });
 
-const loading = computed(() => 
-    isEditMode.value 
-        ? updateMutation.isPending.value 
+const loading = computed(() =>
+    isEditMode.value
+        ? updateMutation.isPending.value
         : createMutation.isPending.value
 );
 
@@ -234,7 +249,16 @@ const handleSubmit = async () => {
             );
             return;
         }
-
+        if (
+            isEditMode.value &&
+            offerQuery.data.value?.admin_id !== currentAdminId.value
+        ) {
+            message.error(
+                t("offers.notOwner") ||
+                    "You can only update offers you created."
+            );
+            return;
+        }
         if (isEditMode.value) {
             // Update existing offer
             const offerData = {
@@ -242,6 +266,7 @@ const handleSubmit = async () => {
                 description: formState.value.description,
                 labor_cost: formState.value.labor_cost,
                 total_amount: totalAmount.value,
+                client_id: formState.value.client_id,
             };
 
             await updateMutation.mutateAsync({
@@ -308,9 +333,9 @@ const handleSubmit = async () => {
     } catch (error) {
         console.error("Form submission failed:", error);
         message.error(
-            isEditMode.value 
-                ? (t("offers.updateError") || "Failed to update offer")
-                : (t("offers.createError") || "Failed to create offer")
+            isEditMode.value
+                ? t("offers.updateError") || "Failed to update offer"
+                : t("offers.createError") || "Failed to create offer"
         );
     }
 };
@@ -337,7 +362,7 @@ const handleAddPartCancel = () => {
 const handleAddPartSubmit = async () => {
     try {
         await newPartFormRef.value.validate();
-        
+
         await createPartMutation.mutateAsync({
             name: newPartForm.value.name,
             brand: newPartForm.value.brand || null,
@@ -348,16 +373,14 @@ const handleAddPartSubmit = async () => {
         message.success(
             t("parts.createSuccess") || "Part created successfully"
         );
-        
+
         // Close modal and reset form
         handleAddPartCancel();
-        
+
         // The parts catalog will be automatically refreshed due to query invalidation
     } catch (error) {
         console.error("Failed to create part:", error);
-        message.error(
-            t("parts.createError") || "Failed to create part"
-        );
+        message.error(t("parts.createError") || "Failed to create part");
     }
 };
 
@@ -387,7 +410,7 @@ const handleAddServiceCancel = () => {
 const handleAddServiceSubmit = async () => {
     try {
         await newServiceFormRef.value.validate();
-        
+
         await createServiceMutation.mutateAsync({
             name: newServiceForm.value.name,
             default_price: newServiceForm.value.default_price || null,
@@ -396,16 +419,14 @@ const handleAddServiceSubmit = async () => {
         message.success(
             t("services.createSuccess") || "Service created successfully"
         );
-        
+
         // Close modal and reset form
         handleAddServiceCancel();
-        
+
         // The services catalog will be automatically refreshed due to query invalidation
     } catch (error) {
         console.error("Failed to create service:", error);
-        message.error(
-            t("services.createError") || "Failed to create service"
-        );
+        message.error(t("services.createError") || "Failed to create service");
     }
 };
 
@@ -424,305 +445,377 @@ const newServiceRules = computed<Record<string, RuleObject[]>>(() => ({
     <div class="offer-form-container">
         <a-spin :spinning="isEditMode && offerQuery.isLoading.value">
             <a-card :bordered="false" class="form-card">
-            <template #title>
-                <div class="card-header">
-                    <span class="card-title">{{
-                        isEditMode 
-                            ? ($t("offers.edit") || "Edit Offer")
-                            : ($t("offers.new") || "New Offer")
-                    }}</span>
-                </div>
-            </template>
-
-            <a-form
-                ref="formRef"
-                :model="formState"
-                :rules="rules"
-                layout="vertical"
-                class="offer-form">
-                <!-- Basic Information -->
-                <div class="form-section">
-                    <h3 class="section-title">
-                        {{ $t("offers.basicInfo") || "Basic Information" }}
-                    </h3>
-
-                    <a-row :gutter="24">
-                        <a-col :xs="24" :lg="12">
-                            <a-form-item
-                                :label="$t('offers.offerTitle') || 'Title'"
-                                name="title">
-                                <a-input
-                                    v-model:value="formState.title"
-                                    :placeholder="
-                                        $t('offers.titlePlaceholder') ||
-                                        'e.g., Engine Repair Quote'
-                                    "
-                                    size="large" />
-                            </a-form-item>
-                        </a-col>
-
-                        <a-col :xs="24" :lg="12">
-                            <a-form-item
-                                :label="$t('offers.client') || 'Client'"
-                                name="client_id">
-                                <a-select
-                                    v-model:value="formState.client_id"
-                                    :options="clientOptions"
-                                    :placeholder="
-                                        $t('offers.clientPlaceholder') ||
-                                        'Select a client'
-                                    "
-                                    size="large"
-                                    show-search
-                                    :filter-option="
-                                        (input, option) =>
-                                            option.label
-                                                .toLowerCase()
-                                                .includes(input.toLowerCase())
-                                    "
-                                    :loading="clientsQuery.isLoading.value" />
-                            </a-form-item>
-                        </a-col>
-                    </a-row>
-
-                    <a-row :gutter="24">
-                        <a-col :xs="24">
-                            <a-form-item
-                                :label="
-                                    $t('offers.description') || 'Description'
-                                "
-                                name="description">
-                                <a-textarea
-                                    v-model:value="formState.description"
-                                    :placeholder="
-                                        $t('offers.descriptionPlaceholder') ||
-                                        'Detailed description of the work to be done'
-                                    "
-                                    :rows="4"
-                                    size="large" />
-                            </a-form-item>
-                        </a-col>
-                    </a-row>
-                </div>
-
-                <!-- Parts Section -->
-                <div class="form-section">
-                    <div class="section-header">
-                        <h3 class="section-title">
-                            {{ $t("offers.parts") || "Parts" }}
-                        </h3>
-                        <a-button type="dashed" @click="addPart">
-                            <template #icon><PlusOutlined /></template>
-                            {{ $t("offers.addPart") || "Add Part" }}
-                        </a-button>
-                    </div>
-
-                    <div v-if="parts.length > 0" class="items-list">
-                        <a-card
-                            v-for="(part, index) in parts"
-                            :key="index"
-                            class="item-card"
-                            size="small">
-                            <a-row :gutter="16" align="middle">
-                                <a-col :xs="24" :md="10">
-                                    <a-select
-                                        v-model:value="part.part_id"
-                                        :options="partsOptions"
-                                        placeholder="Select part"
-                                        show-search
-                                        allow-clear
-                                        @change="(val) => onPartSelect(val, index)"
-                                        :filter-option="(input, option) => option.label.toLowerCase().includes(input.toLowerCase())"
-                                        :loading="partsQuery.isLoading.value"
-                                        style="width: 100%">
-                                        <template #dropdownRender="{ menuNode: menu }">
-                                            <div>
-                                                <component :is="menu" />
-                                                <a-divider style="margin: 8px 0" />
-                                                <div style="padding: 8px 12px">
-                                                    <a-button type="dashed" block @click="showAddPartModalHandler">
-                                                        <template #icon><PlusCircleOutlined /></template>
-                                                        {{ $t("offers.addNewPart") || "Add New Part" }}
-                                                    </a-button>
-                                                </div>
-                                            </div>
-                                        </template>
-                                    </a-select>
-                                </a-col>
-                                <a-col :xs="12" :md="4">
-                                    <a-input-number
-                                        v-model:value="part.quantity"
-                                        :min="1"
-                                        :placeholder="
-                                            $t('offers.quantity') || 'Qty'
-                                        "
-                                        style="width: 100%" />
-                                </a-col>
-                                <a-col :xs="12" :md="6">
-                                    <a-input-number
-                                        v-model:value="part.price"
-                                        :min="0"
-                                        :precision="2"
-                                        :placeholder="
-                                            $t('offers.price') || 'Price'
-                                        "
-                                        prefix="€"
-                                        style="width: 100%" />
-                                </a-col>
-                                <a-col :xs="24" :md="3">
-                                    <div class="item-total">
-                                        €{{
-                                            (
-                                                part.price * part.quantity
-                                            ).toFixed(2)
-                                        }}
-                                    </div>
-                                </a-col>
-                                <a-col :xs="24" :md="1">
-                                    <a-button
-                                        type="text"
-                                        danger
-                                        @click="removePart(index)"
-                                        :icon="h(DeleteOutlined)" />
-                                </a-col>
-                            </a-row>
-                        </a-card>
-                    </div>
-                </div>
-
-                <!-- Services Section -->
-                <div class="form-section">
-                    <div class="section-header">
-                        <h3 class="section-title">
-                            {{ $t("offers.services") || "Services" }}
-                        </h3>
-                        <a-button type="dashed" @click="addService">
-                            <template #icon><PlusOutlined /></template>
-                            {{ $t("offers.addService") || "Add Service" }}
-                        </a-button>
-                    </div>
-
-                    <div v-if="services.length > 0" class="items-list">
-                        <a-card
-                            v-for="(service, index) in services"
-                            :key="index"
-                            class="item-card"
-                            size="small">
-                            <a-row :gutter="16" align="middle">
-                                <a-col :xs="24" :md="14">
-                                    <a-select
-                                        v-model:value="service.service_id"
-                                        :options="servicesOptions"
-                                        :placeholder="$t('offers.selectService') || 'Select service'"
-                                        show-search
-                                        allow-clear
-                                        @change="(val) => onServiceSelect(val, index)"
-                                        :filter-option="(input, option) => option.label.toLowerCase().includes(input.toLowerCase())"
-                                        :loading="servicesQuery.isLoading.value"
-                                        style="width: 100%">
-                                        <template #dropdownRender="{ menuNode: menu }">
-                                            <div>
-                                                <component :is="menu" />
-                                                <a-divider style="margin: 8px 0" />
-                                                <div style="padding: 8px 12px">
-                                                    <a-button
-                                                        type="dashed"
-                                                        block
-                                                        @click="showAddServiceModalHandler">
-                                                        <template #icon>
-                                                            <PlusCircleOutlined /> 
-                                                        </template>
-                                                        {{ $t("offers.addNewService") || "Add New Service" }}
-                                                    </a-button>
-                                                </div>
-                                            </div>
-                                        </template>
-                                    </a-select>
-                                </a-col>
-                                <a-col :xs="12" :md="7">
-                                    <a-input-number
-                                        v-model:value="service.price"
-                                        :min="0"
-                                        :precision="2"
-                                        :placeholder="
-                                            $t('offers.price') || 'Price'
-                                        "
-                                        prefix="€"
-                                        style="width: 100%" />
-                                </a-col>
-                                <a-col :xs="12" :md="2">
-                                    <div class="item-total">
-                                        €{{ Number(service.price).toFixed(2) }}
-                                    </div>
-                                </a-col>
-                                <a-col :xs="24" :md="1">
-                                    <a-button
-                                        type="text"
-                                        danger
-                                        @click="removeService(index)"
-                                        :icon="h(DeleteOutlined)" />
-                                </a-col>
-                            </a-row>
-                        </a-card>
-                    </div>
-                </div>
-
-                <!-- Labor Cost -->
-                <div class="form-section">
-                    <h3 class="section-title">
-                        {{ $t("offers.laborCost") || "Labor Cost" }}
-                    </h3>
-                    <a-row :gutter="24">
-                        <a-col :xs="24" :md="12">
-                            <a-input-number
-                                v-model:value="formState.labor_cost"
-                                :min="0"
-                                :precision="2"
-                                :placeholder="
-                                    $t('offers.laborCostPlaceholder') ||
-                                    'Enter labor cost'
-                                "
-                                prefix="€"
-                                size="large"
-                                style="width: 100%" />
-                        </a-col>
-                    </a-row>
-                </div>
-
-                <!-- Total -->
-                <div class="total-section">
-                    <div class="total-container">
-                        <span class="total-label">{{
-                            $t("offers.totalAmount") || "Total Amount"
+                <template #title>
+                    <div class="card-header">
+                        <span class="card-title">{{
+                            isEditMode
+                                ? $t("offers.edit") || "Edit Offer"
+                                : $t("offers.new") || "New Offer"
                         }}</span>
-                        <span class="total-value"
-                            >€{{ totalAmount.toFixed(2) }}</span
-                        >
                     </div>
-                </div>
+                </template>
 
-                <!-- Actions -->
-                <div class="form-actions">
-                    <a-space :size="12">
-                        <a-button @click="handleCancel" size="large">
-                            <template #icon><CloseOutlined /></template>
-                            {{ $t("common.cancel") || "Cancel" }}
-                        </a-button>
-                        <a-button
-                            type="primary"
-                            @click="handleSubmit"
-                            :loading="loading"
-                            size="large">
-                            <template #icon><SaveOutlined /></template>
-                            {{ isEditMode 
-                                ? ($t("common.update") || "Update Offer")
-                                : ($t("common.create") || "Create Offer")
-                            }}
-                        </a-button>
-                    </a-space>
-                </div>
-            </a-form>
-        </a-card>
+                <a-form
+                    v-if="isAdmin"
+                    ref="formRef"
+                    :model="formState"
+                    :rules="rules"
+                    layout="vertical"
+                    class="offer-form">
+                    <!-- Basic Information -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            {{ $t("offers.basicInfo") || "Basic Information" }}
+                        </h3>
+
+                        <a-row :gutter="24">
+                            <a-col :xs="24" :lg="12">
+                                <a-form-item
+                                    :label="$t('offers.offerTitle') || 'Title'"
+                                    name="title">
+                                    <a-input
+                                        v-model:value="formState.title"
+                                        :placeholder="
+                                            $t('offers.titlePlaceholder') ||
+                                            'e.g., Engine Repair Quote'
+                                        "
+                                        size="large" />
+                                </a-form-item>
+                            </a-col>
+
+                            <a-col :xs="24" :lg="12">
+                                <a-form-item
+                                    :label="$t('offers.client') || 'Client'"
+                                    name="client_id">
+                                    <a-select
+                                        v-model:value="formState.client_id"
+                                        :options="clientOptions"
+                                        :placeholder="
+                                            $t('offers.clientPlaceholder') ||
+                                            'Select a client'
+                                        "
+                                        size="large"
+                                        show-search
+                                        :filter-option="
+                                            (input, option) =>
+                                                option.label
+                                                    .toLowerCase()
+                                                    .includes(
+                                                        input.toLowerCase()
+                                                    )
+                                        "
+                                        :loading="
+                                            clientsQuery.isLoading.value
+                                        " />
+                                </a-form-item>
+                            </a-col>
+                        </a-row>
+
+                        <a-row :gutter="24">
+                            <a-col :xs="24">
+                                <a-form-item
+                                    :label="
+                                        $t('offers.description') ||
+                                        'Description'
+                                    "
+                                    name="description">
+                                    <a-textarea
+                                        v-model:value="formState.description"
+                                        :placeholder="
+                                            $t(
+                                                'offers.descriptionPlaceholder'
+                                            ) ||
+                                            'Detailed description of the work to be done'
+                                        "
+                                        :rows="4"
+                                        size="large" />
+                                </a-form-item>
+                            </a-col>
+                        </a-row>
+                    </div>
+
+                    <!-- Parts Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                {{ $t("offers.parts") || "Parts" }}
+                            </h3>
+                            <a-button type="dashed" @click="addPart">
+                                <template #icon><PlusOutlined /></template>
+                                {{ $t("offers.addPart") || "Add Part" }}
+                            </a-button>
+                        </div>
+
+                        <div v-if="parts.length > 0" class="items-list">
+                            <a-card
+                                v-for="(part, index) in parts"
+                                :key="index"
+                                class="item-card"
+                                size="small">
+                                <a-row :gutter="16" align="middle">
+                                    <a-col :xs="24" :md="10">
+                                        <a-select
+                                            v-model:value="part.part_id"
+                                            :options="partsOptions"
+                                            placeholder="Select part"
+                                            show-search
+                                            allow-clear
+                                            @change="
+                                                (val) =>
+                                                    onPartSelect(val, index)
+                                            "
+                                            :filter-option="
+                                                (input, option) =>
+                                                    option.label
+                                                        .toLowerCase()
+                                                        .includes(
+                                                            input.toLowerCase()
+                                                        )
+                                            "
+                                            :loading="
+                                                partsQuery.isLoading.value
+                                            "
+                                            style="width: 100%">
+                                            <template
+                                                #dropdownRender="{
+                                                    menuNode: menu,
+                                                }">
+                                                <div>
+                                                    <component :is="menu" />
+                                                    <a-divider
+                                                        style="margin: 8px 0" />
+                                                    <div
+                                                        style="
+                                                            padding: 8px 12px;
+                                                        ">
+                                                        <a-button
+                                                            type="dashed"
+                                                            block
+                                                            @click="
+                                                                showAddPartModalHandler
+                                                            ">
+                                                            <template #icon
+                                                                ><PlusCircleOutlined
+                                                            /></template>
+                                                            {{
+                                                                $t(
+                                                                    "offers.addNewPart"
+                                                                ) ||
+                                                                "Add New Part"
+                                                            }}
+                                                        </a-button>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </a-select>
+                                    </a-col>
+                                    <a-col :xs="12" :md="4">
+                                        <a-input-number
+                                            v-model:value="part.quantity"
+                                            :min="1"
+                                            :placeholder="
+                                                $t('offers.quantity') || 'Qty'
+                                            "
+                                            style="width: 100%" />
+                                    </a-col>
+                                    <a-col :xs="12" :md="6">
+                                        <a-input-number
+                                            v-model:value="part.price"
+                                            :min="0"
+                                            :precision="2"
+                                            :placeholder="
+                                                $t('offers.price') || 'Price'
+                                            "
+                                            prefix="€"
+                                            style="width: 100%" />
+                                    </a-col>
+                                    <a-col :xs="24" :md="3">
+                                        <div class="item-total">
+                                            €{{
+                                                (
+                                                    part.price * part.quantity
+                                                ).toFixed(2)
+                                            }}
+                                        </div>
+                                    </a-col>
+                                    <a-col :xs="24" :md="1">
+                                        <a-button
+                                            type="text"
+                                            danger
+                                            @click="removePart(index)"
+                                            :icon="h(DeleteOutlined)" />
+                                    </a-col>
+                                </a-row>
+                            </a-card>
+                        </div>
+                    </div>
+
+                    <!-- Services Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                {{ $t("offers.services") || "Services" }}
+                            </h3>
+                            <a-button type="dashed" @click="addService">
+                                <template #icon><PlusOutlined /></template>
+                                {{ $t("offers.addService") || "Add Service" }}
+                            </a-button>
+                        </div>
+
+                        <div v-if="services.length > 0" class="items-list">
+                            <a-card
+                                v-for="(service, index) in services"
+                                :key="index"
+                                class="item-card"
+                                size="small">
+                                <a-row :gutter="16" align="middle">
+                                    <a-col :xs="24" :md="14">
+                                        <a-select
+                                            v-model:value="service.service_id"
+                                            :options="servicesOptions"
+                                            :placeholder="
+                                                $t('offers.selectService') ||
+                                                'Select service'
+                                            "
+                                            show-search
+                                            allow-clear
+                                            @change="
+                                                (val) =>
+                                                    onServiceSelect(val, index)
+                                            "
+                                            :filter-option="
+                                                (input, option) =>
+                                                    option.label
+                                                        .toLowerCase()
+                                                        .includes(
+                                                            input.toLowerCase()
+                                                        )
+                                            "
+                                            :loading="
+                                                servicesQuery.isLoading.value
+                                            "
+                                            style="width: 100%">
+                                            <template
+                                                #dropdownRender="{
+                                                    menuNode: menu,
+                                                }">
+                                                <div>
+                                                    <component :is="menu" />
+                                                    <a-divider
+                                                        style="margin: 8px 0" />
+                                                    <div
+                                                        style="
+                                                            padding: 8px 12px;
+                                                        ">
+                                                        <a-button
+                                                            type="dashed"
+                                                            block
+                                                            @click="
+                                                                showAddServiceModalHandler
+                                                            ">
+                                                            <template #icon>
+                                                                <PlusCircleOutlined />
+                                                            </template>
+                                                            {{
+                                                                $t(
+                                                                    "offers.addNewService"
+                                                                ) ||
+                                                                "Add New Service"
+                                                            }}
+                                                        </a-button>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </a-select>
+                                    </a-col>
+                                    <a-col :xs="12" :md="7">
+                                        <a-input-number
+                                            v-model:value="service.price"
+                                            :min="0"
+                                            :precision="2"
+                                            :placeholder="
+                                                $t('offers.price') || 'Price'
+                                            "
+                                            prefix="€"
+                                            style="width: 100%" />
+                                    </a-col>
+                                    <a-col :xs="12" :md="2">
+                                        <div class="item-total">
+                                            €{{
+                                                Number(service.price).toFixed(2)
+                                            }}
+                                        </div>
+                                    </a-col>
+                                    <a-col :xs="24" :md="1">
+                                        <a-button
+                                            type="text"
+                                            danger
+                                            @click="removeService(index)"
+                                            :icon="h(DeleteOutlined)" />
+                                    </a-col>
+                                </a-row>
+                            </a-card>
+                        </div>
+                    </div>
+
+                    <!-- Labor Cost -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            {{ $t("offers.laborCost") || "Labor Cost" }}
+                        </h3>
+                        <a-row :gutter="24">
+                            <a-col :xs="24" :md="12">
+                                <a-input-number
+                                    v-model:value="formState.labor_cost"
+                                    :min="0"
+                                    :precision="2"
+                                    :placeholder="
+                                        $t('offers.laborCostPlaceholder') ||
+                                        'Enter labor cost'
+                                    "
+                                    prefix="€"
+                                    size="large"
+                                    style="width: 100%" />
+                            </a-col>
+                        </a-row>
+                    </div>
+
+                    <!-- Total -->
+                    <div class="total-section">
+                        <div class="total-container">
+                            <span class="total-label">{{
+                                $t("offers.totalAmount") || "Total Amount"
+                            }}</span>
+                            <span class="total-value"
+                                >€{{ totalAmount.toFixed(2) }}</span
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="form-actions">
+                        <a-space :size="12">
+                            <a-button @click="handleCancel" size="large">
+                                <template #icon><CloseOutlined /></template>
+                                {{ $t("common.cancel") || "Cancel" }}
+                            </a-button>
+                            <a-button
+                                type="primary"
+                                @click="handleSubmit"
+                                :loading="loading"
+                                size="large">
+                                <template #icon><SaveOutlined /></template>
+                                {{
+                                    isEditMode
+                                        ? $t("common.update") || "Update Offer"
+                                        : $t("common.create") || "Create Offer"
+                                }}
+                            </a-button>
+                        </a-space>
+                    </div>
+                </a-form>
+                <a-empty v-else description="Access denied – admins only." />
+            </a-card>
         </a-spin>
 
         <!-- Add New Part Modal -->
@@ -743,7 +836,9 @@ const newServiceRules = computed<Record<string, RuleObject[]>>(() => ({
                     name="name">
                     <a-input
                         v-model:value="newPartForm.name"
-                        :placeholder="$t('parts.namePlaceholder') || 'Enter part name'"
+                        :placeholder="
+                            $t('parts.namePlaceholder') || 'Enter part name'
+                        "
                         size="large" />
                 </a-form-item>
 
@@ -754,7 +849,10 @@ const newServiceRules = computed<Record<string, RuleObject[]>>(() => ({
                             name="brand">
                             <a-input
                                 v-model:value="newPartForm.brand"
-                                :placeholder="$t('parts.brandPlaceholder') || 'Enter brand'"
+                                :placeholder="
+                                    $t('parts.brandPlaceholder') ||
+                                    'Enter brand'
+                                "
                                 size="large" />
                         </a-form-item>
                     </a-col>
@@ -764,20 +862,23 @@ const newServiceRules = computed<Record<string, RuleObject[]>>(() => ({
                             name="oem_code">
                             <a-input
                                 v-model:value="newPartForm.oem_code"
-                                :placeholder="$t('parts.oemCodePlaceholder') || 'Enter OEM code'"
+                                :placeholder="
+                                    $t('parts.oemCodePlaceholder') ||
+                                    'Enter OEM code'
+                                "
                                 size="large" />
                         </a-form-item>
                     </a-col>
                 </a-row>
 
-                <a-form-item
-                    :label="$t('parts.price') || 'Price'"
-                    name="price">
+                <a-form-item :label="$t('parts.price') || 'Price'" name="price">
                     <a-input-number
                         v-model:value="newPartForm.price"
                         :min="0"
                         :precision="2"
-                        :placeholder="$t('parts.pricePlaceholder') || 'Enter price'"
+                        :placeholder="
+                            $t('parts.pricePlaceholder') || 'Enter price'
+                        "
                         prefix="€"
                         size="large"
                         style="width: 100%" />
@@ -803,7 +904,10 @@ const newServiceRules = computed<Record<string, RuleObject[]>>(() => ({
                     name="name">
                     <a-input
                         v-model:value="newServiceForm.name"
-                        :placeholder="$t('services.namePlaceholder') || 'Enter service name'"
+                        :placeholder="
+                            $t('services.namePlaceholder') ||
+                            'Enter service name'
+                        "
                         size="large" />
                 </a-form-item>
 
@@ -814,7 +918,10 @@ const newServiceRules = computed<Record<string, RuleObject[]>>(() => ({
                         v-model:value="newServiceForm.default_price"
                         :min="0"
                         :precision="2"
-                        :placeholder="$t('services.defaultPricePlaceholder') || 'Enter default price'"
+                        :placeholder="
+                            $t('services.defaultPricePlaceholder') ||
+                            'Enter default price'
+                        "
                         prefix="€"
                         size="large"
                         style="width: 100%" />

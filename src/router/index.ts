@@ -115,6 +115,12 @@ const routes: RouteRecordRaw[] = [
                 path: "offers/:id/edit",
                 name: "OfferEdit",
                 component: () => import("@/pages/Offers/OfferForm.vue"),
+                meta: { requiresAuth: true, role: "client" },
+            },
+            {
+                path: "/pending-offers",
+                name: "PendingOffers",
+                component: () => import("@/pages/Offers/PendingOffers.vue"),
             },
             {
                 path: "repairs/:id",

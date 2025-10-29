@@ -10,18 +10,85 @@ import {
     CheckCircleOutlined,
     CloseCircleOutlined,
     ToolOutlined,
+    ExclamationCircleOutlined,
     AppstoreOutlined,
 } from "@ant-design/icons-vue";
+import { Modal, message } from "ant-design-vue";
 import { useOfferDetails } from "@/api/offers/queries";
+import { useRespondToOffer } from "@/api/offers/mutations";
 import dayjs from "dayjs";
+
+const { t } = useI18n();
+
 const router = useRouter();
 const route = useRoute();
+
+const { role, userId } = useGlobalState();
+
+const isAdmin = computed(() => role.value === "admin");
+
+useOffersRealtimeSync(userId.value, role.value);
 
 const offerId = computed(() => route.params.id as string);
 
 const offerQuery = useOfferDetails(offerId.value);
 
 const offer = computed(() => offerQuery.data.value);
+
+const respondMutation = useRespondToOffer();
+
+const handleAccept = (offerId: string, title: string) => {
+    Modal.confirm({
+        title: t("offers.confirmAccept") || "Accept Offer",
+        icon: h(CheckCircleOutlined, { style: { color: "#52c41a" } }),
+        content:
+            t("offers.confirmAcceptMessage", { title }) ||
+            `Are you sure you want to accept "${title}"?`,
+        okText: t("offers.accept"),
+        okType: "primary",
+        cancelText: t("common.cancel"),
+        onOk: async () => {
+            try {
+                await respondMutation.mutateAsync({
+                    offerId,
+                    response: "accepted",
+                });
+                message.success(t("offers.acceptSuccess") || "Offer accepted!");
+                // Refresh query
+                offerQuery.refetch();
+            } catch (error) {
+                message.error(t("offers.acceptError") || "Failed to accept");
+            }
+        },
+    });
+};
+
+const handleDecline = (offerId: string, title: string) => {
+    Modal.confirm({
+        title: t("offers.confirmDecline") || "Decline Offer",
+        icon: h(ExclamationCircleOutlined, { style: { color: "#ff4d4f" } }),
+        content:
+            t("offers.confirmDeclineMessage", { title }) ||
+            `Are you sure you want to decline "${title}"?`,
+        okText: t("offers.decline"),
+        okType: "danger",
+        cancelText: t("common.cancel"),
+        onOk: async () => {
+            try {
+                await respondMutation.mutateAsync({
+                    offerId,
+                    response: "declined",
+                });
+                message.success(
+                    t("offers.declineSuccess") || "Offer declined!"
+                );
+                offerQuery.refetch();
+            } catch (error) {
+                message.error(t("offers.declineError") || "Failed to decline");
+            }
+        },
+    });
+};
 
 const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
@@ -113,13 +180,45 @@ const handleClientClick = () => {
                                 </div>
                             </div>
                         </div>
-                        <div
-                            class="header-actions"
-                            v-if="offer.status === 'pending'">
-                            <a-button @click="handleEdit" size="large">
+                        <div class="header-actions">
+                            <!-- Admin: Edit if pending -->
+                            <a-button
+                                v-if="isAdmin && offer.status === 'pending'"
+                                @click="handleEdit"
+                                size="large">
                                 <template #icon><EditOutlined /></template>
                                 {{ $t("common.edit") }}
                             </a-button>
+
+                            <!-- Client: Accept/Decline if pending -->
+                            <div
+                                v-else-if="
+                                    !isAdmin && offer.status === 'pending'
+                                "
+                                class="client-actions">
+                                <a-button
+                                    type="primary"
+                                    size="large"
+                                    @click="handleAccept(offer.id, offer.title)"
+                                    :loading="respondMutation.isPending.value">
+                                    <template #icon
+                                        ><CheckCircleOutlined
+                                    /></template>
+                                    {{ $t("offers.accept") }}
+                                </a-button>
+                                <a-button
+                                    danger
+                                    size="large"
+                                    @click="
+                                        handleDecline(offer.id, offer.title)
+                                    "
+                                    :loading="respondMutation.isPending.value">
+                                    <template #icon
+                                        ><CloseCircleOutlined
+                                    /></template>
+                                    {{ $t("offers.decline") }}
+                                </a-button>
+                            </div>
                         </div>
                     </div>
                 </a-card>
@@ -635,6 +734,11 @@ const handleClientClick = () => {
         color: #8c8c8c;
         font-size: 14px;
     }
+}
+
+.client-actions {
+    display: flex;
+    gap: 12px;
 }
 
 .cost-list {

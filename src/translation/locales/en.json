@@ -46,7 +46,8 @@
         "view": "View",
         "delete": "Delete",
         "confirmDelete": "Are you sure you want to delete this item?",
-        "actions": "Actions"
+        "actions": "Actions",
+        "viewAll": "View All"
     },
     "Try again": "Try again",
     "Something went wrong": "Something went wrong",
@@ -115,7 +116,10 @@
         "year": "Year",
         "chartPlaceholder": "Revenue chart will be displayed here",
         "totalVehicles": "Total Vehicles",
-        "newOffer": "New Offer"
+        "newOffer": "New Offer",
+        "offers": "Offers",
+        "recentOffers": "Recent Offers",
+        "noOffers": "No offers yet"
     },
     "status": {
         "in_progress": "In Progress",
@@ -193,11 +197,15 @@
         "servicesTotal": "Services Total",
         "timeline": "Timeline",
         "created": "Created",
+        "createFirst": "Create Your First Offer",
         "lastUpdated": "Last Updated",
         "status": "Status",
         "statusPending": "Pending",
         "statusAccepted": "Accepted",
         "statusDeclined": "Declined",
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "declined": "Declined",
         "items": "Items",
         "date": "Created",
         "accept": "Accept",
@@ -218,7 +226,11 @@
         "confirmDecline": "Decline Offer",
         "confirmDeclineMessage": "Are you sure you want to decline the offer \"{title}\"?",
         "addNewPart": "Add New Part",
-        "addNewService": "Add New Service"
+        "addNewService": "Add New Service",
+        "accessDenied": "You cannot create/edit offers.",
+        "notOwner": "You can only update offers you created.",
+        "clientRedirect": "Redirecting to your offers...",
+        "pendingOffersWaiting": "pending offer(s) waiting for your response"
     },
     "parts": {
         "name": "Part Name",

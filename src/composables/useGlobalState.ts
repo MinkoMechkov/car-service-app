@@ -4,6 +4,7 @@ import { supabase } from "@/utils/supabaseClient";
 
 // Singleton state
 const user = ref<User | null>(null);
+const userId = ref<string | null>(null);
 const session = ref<Session | null>(null);
 const role = ref<string | null>(null);
 const globalLoading = ref(true);
@@ -14,8 +15,9 @@ export const useGlobalState = () => {
 
     const setUser = (newUser: User | null) => {
         user.value = newUser;
+        userId.value = newUser?.id ?? null;
     };
-
+    
     const setSession = (newSession: Session | null) => {
         session.value = newSession;
     };
@@ -104,6 +106,7 @@ export const useGlobalState = () => {
 
     return {
         user: computed(() => user.value),
+        userId: computed(() => userId.value), 
         session: computed(() => session.value),
         role: computed(() => role.value),
         globalLoading: computed(() => globalLoading.value),

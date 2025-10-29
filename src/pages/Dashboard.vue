@@ -269,7 +269,7 @@ const editRepair = (id: string) => {
                         {{ $t("dashboard.newVehicle") }}
                     </a-button>
                 </router-link>
-                 <router-link to="/offers/new">
+                <router-link to="/offers/new">
                     <a-button size="large">
                         <template #icon><FileTextOutlined /></template>
                         {{ $t("dashboard.newOffer") }}
@@ -324,7 +324,7 @@ const editRepair = (id: string) => {
                     </div>
                 </a-card>
             </a-col>
-           
+
             <a-col :xs="24" :sm="12" :md="8" :lg="8">
                 <a-card class="stat-card stat-card-purple" :bordered="false">
                     <div class="stat-content">
@@ -347,7 +347,7 @@ const editRepair = (id: string) => {
                     </div>
                 </a-card>
             </a-col>
-             <a-col :xs="24" :sm="12" :md="8" :lg="8">
+            <a-col :xs="24" :sm="12" :md="8" :lg="8">
                 <router-link to="/clients">
                     <a-card
                         class="stat-card stat-card-orange"
@@ -428,6 +428,9 @@ const editRepair = (id: string) => {
         <!-- Main Content Grid -->
         <a-row :gutter="[16, 16]" class="content-row">
             <!-- Recent Repairs -->
+            <a-col :xs="24">
+                <OffersOffersWidget />
+            </a-col>
             <a-col :xs="24" :lg="16">
                 <a-card
                     :title="$t('dashboard.recentRepairs')"
@@ -727,11 +730,7 @@ const editRepair = (id: string) => {
 }
 .stat-card-teal {
     .stat-icon {
-        background: linear-gradient(
-            135deg,
-            #4facfe 0%,
-            #00f2fe 100%
-        ); 
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     }
 }
 

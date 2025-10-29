@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h } from "vue";
+import { computed, h, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useAdminOffersList } from "@/api/offers/queries";
@@ -9,20 +9,32 @@ import {
     PlusOutlined,
     FileTextOutlined,
 } from "@ant-design/icons-vue";
-import { Space, Button, Tooltip, Tag } from "ant-design-vue";
+import { Space, Button, Tooltip, Tag, message } from "ant-design-vue";
+
 import type { TableColumnsType } from "ant-design-vue";
-import { useGlobalState } from "@/composables/useGlobalState";
 import dayjs from "dayjs";
 
 const { t } = useI18n();
 const router = useRouter();
 
-const { user, role } = useGlobalState();
+const { user, role, userId } = useGlobalState();
+const isAdmin = computed(() => role.value === "admin");
+
+useOffersRealtimeSync(userId.value, role.value);
 
 // Get current admin ID
 const currentAdminId = computed<string | null>(() => user.value?.id ?? null);
 
 const offersQuery = useAdminOffersList(currentAdminId.value!);
+
+onMounted(() => {
+    if (!isAdmin.value) {
+        router.push("/pending-offers");
+        message.info(
+            t("offers.clientRedirect") || "Redirecting to your offers..."
+        );
+    }
+});
 
 const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
@@ -34,6 +46,7 @@ const getStatusColor = (status: string) => {
 };
 
 const dataSource = computed(
+    
     () =>
         offersQuery.data.value?.map((offer) => ({
             key: offer.id,
@@ -46,6 +59,7 @@ const dataSource = computed(
             services_count: offer.services?.length || 0,
             created_at: offer.created_at,
         })) || []
+        
 );
 
 const columns: TableColumnsType = [
@@ -174,6 +188,7 @@ const handleNew = () => router.push("/offers/new");
                 </div>
             </template>
             <a-table
+                v-if="isAdmin"
                 :columns="columns"
                 :data-source="dataSource"
                 :loading="offersQuery.isLoading.value"
@@ -182,6 +197,9 @@ const handleNew = () => router.push("/offers/new");
                     showTotal: (total) => `Total ${total} offers`,
                 }"
                 :row-class-name="() => 'table-row'" />
+            <div v-else class="client-redirect">
+                <a-empty description="Loading your offers..." />
+            </div>
         </a-card>
     </div>
 </template>
