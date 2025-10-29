@@ -24,7 +24,7 @@ const { t } = useI18n();
 const router = useRouter();
 
 const { userId, role } = useGlobalState();
-console.log("🧑‍💻 Client tab: Global state", { userId: userId.value, role: role.value });
+
 useOffersRealtimeSync(userId.value, role.value);
 
 const isAdmin = computed(() => role.value === "admin");
@@ -42,14 +42,14 @@ const offers = computed(() => offersQuery.value.data.value || []);
 
 // Calculate metrics (Admin only)
 const metrics = computed(() => {
-  if (!isAdmin.value) return { pending: offers.value.length, accepted: 0, declined: 0 };
+    if (!isAdmin.value)
+        return { pending: offers.value.length, accepted: 0, declined: 0 };
 
-  const pending = offers.value.filter((o) => o.status === "pending").length;
-  const accepted = offers.value.filter((o) => o.status === "accepted").length;
-  const declined = offers.value.filter((o) => o.status === "declined").length;
+    const pending = offers.value.filter((o) => o.status === "pending").length;
+    const accepted = offers.value.filter((o) => o.status === "accepted").length;
+    const declined = offers.value.filter((o) => o.status === "declined").length;
 
-  console.log("📊 Admin metrics updated:", { pending, accepted, declined }, "sample offers:", offers.value.slice(0, 2).map(o => ({ id: o.id, status: o.status })));  // <-- Добави
-  return { pending, accepted, declined };
+    return { pending, accepted, declined };
 });
 
 // Get recent offers (last 5 for admin, all for client)
@@ -85,7 +85,6 @@ const calculateTotal = (offer: any) => {
     );
     return partsTotal + servicesTotal + (offer.labor_cost || 0);
 };
-
 </script>
 
 <template>
@@ -236,7 +235,7 @@ const calculateTotal = (offer: any) => {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     height: 100%;
 
-    .client-pending-count{
+    .client-pending-count {
         margin-bottom: 20px;
     }
     :deep(.ant-card-head) {

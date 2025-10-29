@@ -470,7 +470,8 @@ const editRepair = (id: string) => {
                             <template v-else-if="column.key === 'priority'">
                                 <a-badge
                                     :status="getPriorityStatus(record.priority)"
-                                    :text="$t(record.priority)" />
+                                    :text="$t(`priority.${record.priority}`)" 
+                                />
                             </template>
 
                             <template v-else-if="column.key === 'actions'">

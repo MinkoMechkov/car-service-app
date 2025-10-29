@@ -31,12 +31,7 @@ export function useClientPendingOffers(userId?: string) {
         queryKey: ["pending_offers", userId],
         queryFn: async () => {
             if (!userId) return [];
-            console.log(
-                "🔄 REFETCH TRIGGERED for pending_offers:",
-                userId,
-                "at",
-                new Date().toISOString()
-            ); // <-- Добави това
+
             const { data: clientData, error: clientError } = await supabase
                 .from("clients")
                 .select("id")
@@ -59,10 +54,7 @@ export function useClientPendingOffers(userId?: string) {
                 .eq("status", "pending");
 
             if (error) throw error;
-            console.log(
-                "📋 Refetch returned offers:",
-                data?.map((o) => ({ id: o.id, client_id: o.client_id })) || "[]"
-            ); // <-- Добави: Показва IDs и client_id след refetch
+
             return data as Offer[];
         },
         enabled: !!userId,
@@ -133,7 +125,7 @@ export function useOfferDetails(offerId: string) {
                 .single();
 
             if (error) throw error;
-            return data as OfferWithRelations; 
+            return data as OfferWithRelations;
         },
         enabled: !!offerId,
     });
@@ -154,28 +146,26 @@ export function useAdminOffersList(adminId: string) {
     };
 
     return useQuery<OfferWithClient[]>({
-      queryKey: ["admin_offers", adminId],  // <-- Смени на това (sync с invalidate)
-      queryFn: async () => {
-        console.log("🔄 ADMIN REFETCH TRIGGERED for admin_offers:", adminId, "at", new Date().toISOString());
-        const { data, error } = await supabase
-          .from("offers")
-          .select(`
+        queryKey: ["admin_offers", adminId], // <-- Смени на това (sync с invalidate)
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from("offers")
+                .select(
+                    `
             *,
             client:clients!offers_client_id_fkey (id, name, email),
             parts:offer_parts(*),
             services:offer_services(*)
-          `)
-          .eq("admin_id", adminId)
-          .order("created_at", { ascending: false });
+          `
+                )
+                .eq("admin_id", adminId)
+                .order("created_at", { ascending: false });
 
-        if (error) throw error;
-        // Лог за ъпдейтната оферта (замени ID с твоя)
-        const updatedOffer = data?.find(o => o.id === '14a9e784-afd8-4793-a505-8d3f9138b77e');
-        console.log("📋 Admin refetch returned:", data?.length || 0, "offers");
-        console.log("📋 Updated offer status:", updatedOffer?.status || "not found");  // <-- Добави: Провери дали е 'accepted'
-        return data as OfferWithClient[];
-      },
-      staleTime: 0,  // За тест
+            if (error) throw error;
+
+            return data as OfferWithClient[];
+        },
+        staleTime: 0, // За тест
     });
 }
 

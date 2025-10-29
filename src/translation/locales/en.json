@@ -119,7 +119,11 @@
         "newOffer": "New Offer",
         "offers": "Offers",
         "recentOffers": "Recent Offers",
-        "noOffers": "No offers yet"
+        "noOffers": "No offers yet",
+        "error": "error",
+        "warning": "warning",
+        "default": "default"
+
     },
     "status": {
         "in_progress": "In Progress",
