@@ -12,6 +12,9 @@ const initialized = ref(false);
 
 export const useGlobalState = () => {
     const isAuthenticated = computed(() => !!user.value);
+    const isAdmin = computed(() => role.value === 'admin');
+    const isClient = computed(() => role.value === 'client');
+
 
     const setUser = (newUser: User | null) => {
         user.value = newUser;
@@ -111,6 +114,8 @@ export const useGlobalState = () => {
         role: computed(() => role.value),
         globalLoading: computed(() => globalLoading.value),
         isAuthenticated,
+        isAdmin,
+        isClient,
         setUser,
         setSession,
         setRole,

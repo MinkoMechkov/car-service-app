@@ -17,8 +17,7 @@ import dayjs from "dayjs";
 const { t } = useI18n();
 const router = useRouter();
 
-const { user, role, userId } = useGlobalState();
-const isAdmin = computed(() => role.value === "admin");
+const { user, role, userId, isAdmin } = useGlobalState();
 
 useOffersRealtimeSync(userId.value, role.value);
 

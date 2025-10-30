@@ -23,11 +23,9 @@ const { t } = useI18n();
 
 const router = useRouter();
 
-const { userId, role } = useGlobalState();
+const { userId, role , isAdmin} = useGlobalState();
 
 useOffersRealtimeSync(userId.value, role.value);
-
-const isAdmin = computed(() => role.value === "admin");
 
 // Admin: fetch all offers, Client: fetch only pending offers for this client
 const adminOffersQuery = useAdminOffersList(userId.value);

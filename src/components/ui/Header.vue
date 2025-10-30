@@ -216,7 +216,7 @@ const currentLanguageLabel = computed(() => {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - 4rem); // matches .app-layout margin: 0 2rem;
+    width: calc(100% - 4rem); 
     max-width: 1920px;
     z-index: 1000;
 }

@@ -25,3 +25,13 @@ export interface RepairWithRelations extends Repair {
     };
   };
 }
+export interface RecentRepair extends Repair {
+  vehicle: {
+    make: string;
+    model: string;
+    license_plate: string;
+    client: {
+      name: string;
+    };
+  };
+}

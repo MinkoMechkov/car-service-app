@@ -108,7 +108,7 @@ body,
     justify-content: center;
     background-color: var(--background-color);
     position: relative;
-    margin: 0 auto;
+    margin: 0 2rem;
     min-height: 100vh;
     @media (max-width: #{vars.$breakpoint-xs}) {
         margin: 0 1rem;
@@ -120,7 +120,7 @@ body,
     margin-top: 8rem;
     margin-bottom: 2rem;
     @media (max-width: #{vars.$breakpoint-md}) {
-        margin-top: 4rem;
+        margin-top: 8rem;
     }
 }
 

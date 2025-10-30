@@ -26,8 +26,7 @@ const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 
-const { user, role, userId } = useGlobalState();
-const isAdmin = computed(() => role.value === "admin");
+const { user, isAdmin, role, userId } = useGlobalState();
 
 useOffersRealtimeSync(userId.value, role.value);
 
