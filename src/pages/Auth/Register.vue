@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
-import { useRouter } from "vue-router";
 import { message } from "ant-design-vue";
 import { authMutations } from "@/api/auth/mutations";
 import type { RegisterCredentials } from "@/api/auth/interfaces";
-import { useI18n } from "vue-i18n";
 import type { Rule } from "ant-design-vue/es/form";
 
 const { t } = useI18n();
@@ -19,6 +17,7 @@ const formState = reactive<FormState>({
     email: "",
     password: "",
     fullName: "",
+    phone: "",
     confirmPassword: "",
 });
 
@@ -32,6 +31,13 @@ const validateConfirmPassword = async (_rule: Rule, value: string) => {
     }
 };
 
+const validatePhone = async (_rule: Rule, value: string) => {
+    if (value && value.length < 7) {
+        return Promise.reject(t("auth.phoneInvalid") || "Phone number too short");
+    }
+    return Promise.resolve();
+};
+
 const rules: Record<string, Rule[]> = {
     fullName: [
         {
@@ -43,6 +49,12 @@ const rules: Record<string, Rule[]> = {
     email: [
         { required: true, message: t("auth.emailRequired"), trigger: "blur" },
         { type: "email", message: t("auth.emailInvalid"), trigger: "blur" },
+    ],
+    phone: [  
+        {
+            validator: validatePhone,
+            trigger: "blur",
+        },
     ],
     password: [
         {
@@ -68,6 +80,7 @@ const onFinish = async (values: FormState) => {
             email: values.email,
             password: values.password,
             fullName: values.fullName,
+            phone: values.phone || undefined,
         });
         message.success(t("auth.registerSuccess"));
         router.push("/auth/login");
@@ -102,6 +115,13 @@ const onFinish = async (values: FormState) => {
                         size="large" />
                 </a-form-item>
 
+                <a-form-item name="phone" :label="$t('auth.phone') || 'Phone'">
+                    <a-input
+                        v-model:value="formState.phone"
+                        :placeholder="$t('auth.phonePlaceholder') || '+359 123 456 789'"
+                        size="large" />
+                </a-form-item>
+                
                 <a-form-item name="password" :label="$t('auth.password')">
                     <a-input-password
                         v-model:value="formState.password"

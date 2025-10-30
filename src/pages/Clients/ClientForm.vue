@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { reactive, computed, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import type { Client } from "@/api/clients/interfaces";
-import { useClientQuery } from "@/api/clients/queries";
+import {
+    useClientQuery,
+    useUnregisteredClientsQuery,
+} from "@/api/clients/queries";
 import {
     useCreateClientMutation,
     useUpdateClientMutation,
@@ -16,7 +18,9 @@ const router = useRouter();
 const isEditMode = computed(() => !!route.params.id);
 const loading = ref(false);
 
-type ClientFormModel = Omit<Client, "id" | "created_at">;
+type ClientFormModel = Omit<Client, "id" | "created_at"> & {
+    user_id?: string | null;
+};
 
 const formState = reactive<ClientFormModel>({
     name: "",
@@ -24,9 +28,11 @@ const formState = reactive<ClientFormModel>({
     email: null,
     address: null,
     notes: null,
+    user_id: null,
 });
 
 const clientQuery = useClientQuery(String(route.params.id || ""));
+const unregisteredClientsQuery = useUnregisteredClientsQuery();
 
 watch(
     () => clientQuery.data.value,
@@ -37,6 +43,7 @@ watch(
         formState.email = c.email ?? null;
         formState.address = c.address ?? null;
         formState.notes = c.notes ?? null;
+        formState.user_id = c.user_id ?? null;
     },
     { immediate: true }
 );
@@ -53,7 +60,7 @@ const createMutation = useCreateClientMutation();
 const updateMutation = useUpdateClientMutation();
 
 const submit = async () => {
-    const payload: Omit<Client, "id" | "created_at"> = { ...formState };
+    const payload: ClientFormModel = { ...formState };
     try {
         if (isEditMode.value) {
             await updateMutation.mutateAsync({
@@ -72,6 +79,11 @@ const submit = async () => {
 };
 
 const cancel = () => router.back();
+
+//Unlink function for edit mode
+const unlinkUser = () => {
+    formState.user_id = null;
+};
 </script>
 
 <template>
@@ -126,6 +138,41 @@ const cancel = () => router.back();
                             <a-textarea
                                 v-model:value="formState.notes"
                                 :rows="3" />
+                        </a-form-item>
+                    </a-col>
+                    <a-col :xs="24">
+                        <a-form-item
+                            :label="$t('clients.associateUser') || 'Associate with User Account'"
+                            name="user_id">
+                            <a-select 
+                                v-if="!formState.user_id || !isEditMode" 
+                                v-model:value="formState.user_id" 
+                                :loading="unregisteredClientsQuery.isLoading.value"
+                                :placeholder="$t('clients.selectUser') || 'Select unregistered user (optional)'"
+                                allow-clear
+                                style="width: 100%">
+                                <a-select-option 
+                                    v-for="u in unregisteredClientsQuery.data.value || []" 
+                                    :key="u.id" 
+                                    :value="u.id">
+                                    <div>
+                                        <strong>{{ u.full_name || 'Unnamed User' }}</strong>
+                                        <small style="color: #999; display: block;">{{ u.email }}</small>
+                                    </div>
+                                </a-select-option>
+                            </a-select>
+                            <a-tag 
+                                v-else 
+                                color="green" 
+                                :closable="isEditMode" 
+                                @close="unlinkUser"
+                                style="margin-top: 8px">
+                                {{ $t('clients.linkedTo') || 'Linked to' }} {{ formState.user_id?.substring(0,8) + '...' }} 
+                                ({{ clientQuery.data?.value.email || 'N/A' }})
+                            </a-tag>
+                            <small v-if="!isEditMode" style="color: #999; display: block; margin-top: 4px;">
+                                {{ $t('clients.associateHint') || 'Leave empty for manual clients. Auto-links for registered users.' }}
+                            </small>
                         </a-form-item>
                     </a-col>
                 </a-row>

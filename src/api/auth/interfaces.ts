@@ -7,6 +7,7 @@ export interface RegisterCredentials {
   email: string;
   password: string;
   fullName?: string;
+  phone?: string;
 }
 
 export interface ResetPasswordRequest {

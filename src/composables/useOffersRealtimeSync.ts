@@ -6,8 +6,6 @@ import type { Offer } from "@/api/offers/interfaces";
 export function useOffersRealtimeSync(userId?: string, role?: string) {
     const queryClient = useQueryClient();
 
-    console.log("🧑‍💻 Composable called with:", { userId, role });
-
     let channel: any;
 
     onMounted(() => {
@@ -73,9 +71,7 @@ export function useOffersRealtimeSync(userId?: string, role?: string) {
                     }
                 }
             )
-            .subscribe((status) => {
-                console.log("🔌 Supabase channel status:", status);
-            });
+            .subscribe();
     });
 
     onUnmounted(() => {

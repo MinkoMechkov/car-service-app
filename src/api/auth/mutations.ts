@@ -30,6 +30,7 @@ export const authMutations = {
             options: {
                 data: {
                     full_name: credentials.fullName,
+                    phone: credentials.phone,
                 },
             },
         });
