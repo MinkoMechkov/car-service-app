@@ -9,9 +9,10 @@ const router = useRouter();
 const id = computed(() => String(route.params.id || ''));
 
 const detailsQuery = useRepairDetailsQuery(id.value);
+const { isAdmin } = useGlobalState();
 
 const goBack = () => router.back();
-const goEdit = () => router.push(`/repairs/${id.value}/edit`);
+const goEdit = () => { if (isAdmin.value) router.push(`/repairs/${id.value}/edit`); };
 </script>
 
 <template>
@@ -22,7 +23,7 @@ const goEdit = () => router.push(`/repairs/${id.value}/edit`);
           <span>{{ detailsQuery.data.value?.vehicle ? `${detailsQuery.data.value.vehicle.make} ${detailsQuery.data.value.vehicle.model}` : 'Repair Details' }}</span>
           <a-space>
             <a-button @click="goBack">{{ $t('common.back') }}</a-button>
-            <a-button type="primary" @click="goEdit">{{ $t('common.edit') }}</a-button>
+            <a-button v-if="isAdmin" type="primary" @click="goEdit">{{ $t('common.edit') }}</a-button>
           </a-space>
         </div>
       </template>

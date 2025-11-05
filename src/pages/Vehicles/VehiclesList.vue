@@ -2,7 +2,8 @@
 import { computed, h } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { useVehiclesQuery } from '@/api/vehicles/queries';
+import { useVehiclesQuery, useClientVehiclesQuery } from '@/api/vehicles/queries';
+import { useCurrentClientQuery } from '@/api/clients/queries';
 import { useDeleteVehicleMutation } from '@/api/vehicles/mutations';
 import {
   EyeOutlined,
@@ -22,9 +23,15 @@ import type { TableColumnsType } from 'ant-design-vue';
 
 const { t } = useI18n();
 const router = useRouter();
+const { isAdmin, user } = useGlobalState();
+const currentUserId = computed(() => user.value?.id || '');
+const currentClient = useCurrentClientQuery(currentUserId, isAdmin);
+const currentClientId = computed(() => currentClient.data.value?.id || '');
 
 
-const vehiclesQuery = useVehiclesQuery();
+const vehiclesQuery = isAdmin.value
+  ? useVehiclesQuery()
+  : useClientVehiclesQuery(currentClientId);
 
 const deleteMutation = useDeleteVehicleMutation();
 
@@ -93,7 +100,7 @@ const columns: TableColumnsType = [
           onClick: () => router.push(`/vehicles/${record.id}`)
         })
       ),
-      h(Tooltip, { title: t('common.edit') }, () =>
+      isAdmin.value && h(Tooltip, { title: t('common.edit') }, () =>
         h(Button, {
           type: 'text',
           size: 'small',
@@ -101,7 +108,7 @@ const columns: TableColumnsType = [
           onClick: () => router.push(`/vehicles/${record.id}/edit`)
         })
       ),
-      h(Popconfirm, {
+      isAdmin.value && h(Popconfirm, {
         title: t('common.confirmDelete'),
         onConfirm: () => deleteMutation.mutate(record.id)
       }, {
@@ -114,11 +121,11 @@ const columns: TableColumnsType = [
           })
         )
       })
-    ]),
+    ].filter(Boolean)),
   },
 ];
 
-const handleNew = () => router.push('/vehicles/new');
+const handleNew = () => { if (isAdmin.value) router.push('/vehicles/new'); };
 </script>
 
 <template>
@@ -127,7 +134,7 @@ const handleNew = () => router.push('/vehicles/new');
       <template #title>
         <div class="card-header">
           <span class="card-title">{{ $t('vehicles.title') || 'Vehicles' }}</span>
-          <a-button type="primary" @click="handleNew" class="new-vehicle-btn">
+          <a-button v-if="isAdmin" type="primary" @click="handleNew" class="new-vehicle-btn">
             <template #icon><PlusOutlined /></template>
             {{ $t('vehicles.new') || 'New Vehicle' }}
           </a-button>

@@ -2,7 +2,8 @@
 import { computed, h } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { useRepairsQuery } from '@/api/repairs/queries';
+import { useRepairsQuery, useClientRepairsQuery } from '@/api/repairs/queries';
+import { useCurrentClientQuery } from '@/api/clients/queries';
 
 import {
   EyeOutlined,
@@ -25,6 +26,10 @@ import type { TableColumnsType } from 'ant-design-vue';
 
 const { t } = useI18n();
 const router = useRouter();
+const { isAdmin, user } = useGlobalState();
+const currentUserId = computed(() => user.value?.id || '');
+const currentClient = useCurrentClientQuery(currentUserId, isAdmin);
+const currentClientId = computed(() => currentClient.data.value?.id || '');
 
 interface RepairWithRelations extends Repair {
   vehicle?: {
@@ -37,7 +42,9 @@ interface RepairWithRelations extends Repair {
   };
 }
 
-const repairsQuery = useRepairsQuery();
+const repairsQuery = isAdmin.value
+  ? useRepairsQuery()
+  : useClientRepairsQuery(currentClientId);
 
 const deleteMutation = useDeleteRepairMutation();
 
@@ -155,7 +162,7 @@ const columns: TableColumnsType = [
           onClick: () => router.push(`/repairs/${record.id}`)
         })
       ),
-      h(Tooltip, { title: t('common.edit') }, () =>
+      isAdmin.value && h(Tooltip, { title: t('common.edit') }, () =>
         h(Button, {
           type: 'text',
           size: 'small',
@@ -163,7 +170,7 @@ const columns: TableColumnsType = [
           onClick: () => router.push(`/repairs/${record.id}/edit`)
         })
       ),
-      h(Popconfirm, {
+      isAdmin.value && h(Popconfirm, {
         title: t('common.confirmDelete'),
         onConfirm: () => deleteMutation.mutate(record.id)
       }, {
@@ -176,12 +183,12 @@ const columns: TableColumnsType = [
           })
         )
       })
-    ]),
+    ].filter(Boolean)),
   },
 ];
 
 const handleNewRepair = () => {
-  router.push('/repairs/new');
+  if (isAdmin.value) router.push('/repairs/new');
 };
 </script>
 
@@ -191,7 +198,7 @@ const handleNewRepair = () => {
       <template #title>
         <div class="card-header">
           <span class="card-title">{{ $t('repairs.title') }}</span>
-          <a-button type="primary" @click="handleNewRepair" class="new-repair-btn">
+          <a-button v-if="isAdmin" type="primary" @click="handleNewRepair" class="new-repair-btn">
             <template #icon><PlusOutlined /></template>
             {{ $t('repairs.new') }}
           </a-button>

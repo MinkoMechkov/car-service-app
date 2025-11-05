@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/vue-query';
+import { computed, type Ref, type ComputedRef } from 'vue';
 import { supabase } from '@/utils/supabaseClient';
 import type { Repair, RepairWithRelations, RecentRepair } from './interfaces';
 
@@ -89,13 +90,15 @@ export const useRecentRepairsQuery = () =>
   });
 
 export const useClientRepairsQuery = (
-  clientId: string,
+  clientId: string | Ref<string> | ComputedRef<string>,
   options?: { enabled?: ComputedRef<boolean> }
-) =>
-  useQuery<Repair[]>({
-    queryKey: ['clientRepairs', clientId],
+) => {
+  const resolveId = () => (typeof clientId === 'string' ? clientId : clientId.value);
+  return useQuery<Repair[]>({
+    queryKey: ['clientRepairs', resolveId()],
     queryFn: async () => {
-      if (!clientId) return []; // Guard: Return empty array for invalid clientId
+      const id = resolveId();
+      if (!id) return [];
       const { data, error } = await supabase
         .from('repairs')
         .select(
@@ -107,22 +110,25 @@ export const useClientRepairsQuery = (
           )
         `
         )
-        .eq('vehicle.client.id', clientId)
+        .eq('vehicle.client_id', id)
         .order('date', { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
-    enabled: options?.enabled ?? !!clientId,
+    enabled: options?.enabled ?? (computed(() => !!resolveId()) as unknown as ComputedRef<boolean>),
   });
+};
 
 export const useClientRecentRepairsQuery = (
-  clientId: string,
+  clientId: string | Ref<string> | ComputedRef<string>,
   options?: { enabled?: ComputedRef<boolean> }
-) =>
-  useQuery<RecentRepair[]>({
-    queryKey: ['clientRecentRepairs', clientId],
+) => {
+  const resolveId = () => (typeof clientId === 'string' ? clientId : clientId.value);
+  return useQuery<RecentRepair[]>({
+    queryKey: ['clientRecentRepairs', resolveId()],
     queryFn: async () => {
-      if (!clientId) return []; // Guard against empty clientId (prevents UUID error)
+      const id = resolveId();
+      if (!id) return [];
       const { data, error } = await supabase
         .from('repairs')
         .select(
@@ -136,12 +142,13 @@ export const useClientRecentRepairsQuery = (
           )
         `
         )
-        .eq('vehicle.client.id', clientId) // Filter by client
+        .eq('vehicle.client_id', id)
         .order('date', { ascending: false })
-        .limit(4);
+        .limit(10);
 
       if (error) throw error;
       return data ?? [];
     },
-    enabled: options?.enabled ?? !!clientId,
+    enabled: options?.enabled ?? (computed(() => !!resolveId()) as unknown as ComputedRef<boolean>),
   });
+};

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/vue-query';
+import { computed, type Ref, type ComputedRef } from 'vue';
 import { supabase } from '@/utils/supabaseClient';
 import type { Vehicle } from './interfaces';
 
@@ -47,19 +48,22 @@ export const useVehiclesQuery = () =>
   });
 
 export const useClientVehiclesQuery = (
-  clientId: string,
+  clientId: string | Ref<string> | ComputedRef<string>,
   options?: { enabled?: ComputedRef<boolean> }
-) =>
-  useQuery<Vehicle[]>({
-    queryKey: ['clientVehicles', clientId],
+) => {
+  const resolveId = () => (typeof clientId === 'string' ? clientId : clientId.value);
+  return useQuery<Vehicle[]>({
+    queryKey: ['clientVehicles', resolveId()],
     queryFn: async () => {
-      if (!clientId) return []; // Guard
+      const id = resolveId();
+      if (!id) return [];
       const { data, error } = await supabase
         .from('vehicles')
         .select('*, client:clients!inner(id, name)')
-        .eq('client.id', clientId);
+        .eq('client_id', id);
       if (error) throw error;
       return data ?? [];
     },
-    enabled: options?.enabled ?? !!clientId,
+    enabled: options?.enabled ?? (computed(() => !!resolveId()) as unknown as ComputedRef<boolean>),
   });
+};

@@ -21,7 +21,7 @@
   } from '@ant-design/icons-vue';
   import dayjs from 'dayjs';
   import type { Repair } from '@/api/repairs/interfaces';
-  import { useClientsQuery } from '@/api/clients/queries';
+  import { useClientsQuery, useCurrentClientQuery } from '@/api/clients/queries';
   import {
     useRepairsQuery,
     useRecentRepairsQuery,
@@ -32,8 +32,10 @@
 
   const { t } = useI18n();
   const router = useRouter();
-  const { user, isAdmin, isClient } = useGlobalState();
+  const { user, isAdmin } = useGlobalState();
   const currentUserId = computed(() => user.value?.id || '');
+  const currentClient = useCurrentClientQuery(currentUserId, isAdmin);
+  const currentClientId = computed(() => currentClient.data.value?.id || '');
 
   const chartPeriod = ref('month');
 
@@ -41,17 +43,19 @@
     return user.value?.user_metadata?.full_name || user.value?.email?.split('@')[0] || 'User';
   });
 
+  // Use reactive param for client query so it updates when user loads
   const vehiclesQuery = isAdmin.value
     ? useVehiclesQuery()
-    : useClientVehiclesQuery(currentUserId.value);
+    : useClientVehiclesQuery(currentClientId);
 
   const totalVehicles = computed(() => vehiclesQuery.data.value?.length ?? 0);
 
   const recentRepairsQuery = useRecentRepairsQuery();
 
+  // Ensure client repairs query stays scoped to current user reactively
   const repairsQuery = isAdmin.value
     ? useRepairsQuery()
-    : useClientRepairsQuery(currentUserId.value);
+    : useClientRepairsQuery(currentClientId);
 
   const clientsQuery = useClientsQuery();
 
@@ -65,20 +69,26 @@
   };
 
   const recentRepairs = computed(() => {
-    return (
-      recentRepairsQuery.data.value?.map((repair) => ({
-        key: repair.id,
-        id: repair.id,
-        vehicle:
-          `${repair.vehicle?.make || ''} ${repair.vehicle?.model || ''}`.trim() ||
-          'Unknown Vehicle',
-        plate: repair.vehicle?.license_plate || '',
-        client: repair.vehicle?.client?.name || 'Unknown Client',
-        status: getStatus(repair),
-        priority: (repair as any).priority || 'low',
-        date: dayjs(repair.date).format('YYYY-MM-DD'),
-      })) || []
-    );
+    // Admins see globally recent repairs; clients see recent of their own repairs only
+    const source = isAdmin.value
+      ? recentRepairsQuery.data.value
+      : repairsQuery.data.value;
+
+    const items = (source || [])
+      .slice()
+      .sort((a: any, b: any) => dayjs(b.date).valueOf() - dayjs(a.date).valueOf())
+      .slice(0, 10);
+
+    return items.map((repair: any) => ({
+      key: repair.id,
+      id: repair.id,
+      vehicle: `${repair.vehicle?.make || ''} ${repair.vehicle?.model || ''}`.trim() || 'Unknown Vehicle',
+      plate: repair.vehicle?.license_plate || '',
+      client: repair.vehicle?.client?.name || 'Unknown Client',
+      status: getStatus(repair),
+      priority: (repair as any).priority || 'low',
+      date: dayjs(repair.date).format('YYYY-MM-DD'),
+    }));
   });
 
   const activeRepairs = computed(() => {
@@ -212,9 +222,7 @@
     <!-- Welcome Section -->
     <div class="welcome-section">
       <div class="welcome-content">
-        <h1 class="welcome-title">
-          {{ isAdmin ? $t('dashboard.welcomeAdmin') : $t('dashboard.welcome') }}, {{ userName }}! 👋
-        </h1>
+        <h1 class="welcome-title">{{ $t('dashboard.welcome') }}, {{ userName }}! 👋</h1>
         <p class="welcome-subtitle">
           {{ isAdmin ? $t('dashboard.todayOverview') : $t('dashboard.yourOverview') }}
         </p>
@@ -413,7 +421,7 @@
         <OffersOffersWidget />
       </a-col>
       <!-- Recent Repairs -->
-      <a-col :xs="24" :lg="16">
+      <a-col :xs="24" :lg="isAdmin ? 16 : 24">
         <a-card
           :title="isAdmin ? $t('dashboard.recentRepairs') : $t('dashboard.myRecentRepairs')"
           :bordered="false"
@@ -456,7 +464,7 @@
                   <a-button type="link" size="small" @click="viewRepair(record.id)">
                     <EyeOutlined />
                   </a-button>
-                  <a-button type="link" size="small" @click="editRepair(record.id)">
+                  <a-button v-if="isAdmin" type="link" size="small" @click="editRepair(record.id)">
                     <EditOutlined />
                   </a-button>
                 </a-space>
