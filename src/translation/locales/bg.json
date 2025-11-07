@@ -35,7 +35,9 @@
     "logoutError": "Грешка при излизане",
     "phone": "Телефонен номер",
     "phonePlaceholder": "+359 XXX XXX XXX",
-    "phoneInvalid": "Моля, въведете валиден телефонен номер"
+    "phoneInvalid": "Моля, въведете валиден телефонен номер",
+    "loginSubtitle": "Добре дошли отново! Моля, влезте в профила си.",
+    "registerSubtitle": "Създайте профил, за да започнете."
   },
   "common": {
     "settings": "Настройки",

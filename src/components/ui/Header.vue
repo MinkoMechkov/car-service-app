@@ -3,19 +3,18 @@ import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { message } from "ant-design-vue";
 import {
-    MenuOutlined,
     UserOutlined,
     DownOutlined,
     SettingOutlined,
     LogoutOutlined,
     BellOutlined,
     SearchOutlined,
-    ToolOutlined,
     GlobalOutlined,
 } from "@ant-design/icons-vue";
 import { useGlobalState } from "@/composables/useGlobalState";
 import { useI18n } from "vue-i18n";
 import { Grid } from "ant-design-vue";
+import logoHorizontal from "@/assets/images/logo_horizontal.png";
 
 const { setLocale, locale } = useLocale();
 
@@ -78,18 +77,15 @@ const currentLanguageLabel = computed(() => {
             <!-- Left Section: Logo & Brand -->
             <div class="header-left">
                 <router-link to="/" class="brand-section">
-                    <div class="brand-icon">
-                        <ToolOutlined />
-                    </div>
-                    <div v-if="screens.md" class="brand-text">
-                        <span class="brand-name">AutoRepair</span>
-                        <span class="brand-tagline">Pro</span>
-                    </div>
+                    <img
+                        :src="logoHorizontal"
+                        alt="AutoRepair Pro"
+                        class="brand-logo" />
                 </router-link>
             </div>
 
             <!-- Center Section: Search (Desktop only) -->
-            <div v-if="screens.lg" class="header-center">
+            <!-- <div v-if="screens.lg" class="header-center">
                 <a-input-search
                     placeholder="Search repairs, clients, vehicles..."
                     size="large"
@@ -99,7 +95,7 @@ const currentLanguageLabel = computed(() => {
                         <SearchOutlined style="color: rgba(0, 0, 0, 0.45)" />
                     </template>
                 </a-input-search>
-            </div>
+            </div> -->
 
             <!-- Right Section: Actions & User -->
             <div class="header-right">
@@ -131,8 +127,8 @@ const currentLanguageLabel = computed(() => {
                             style="
                                 background: linear-gradient(
                                     135deg,
-                                    #667eea 0%,
-                                    #764ba2 100%
+                                    #30cfd0 0%,
+                                    #330867 100%
                                 );
                             ">
                             {{ userInitials }}
@@ -151,9 +147,10 @@ const currentLanguageLabel = computed(() => {
                                     style="
                                         background: linear-gradient(
                                             135deg,
-                                            #667eea 0%,
-                                            #764ba2 100%
+                                            #30cfd0 0%,
+                                            #330867 100%
                                         );
+                                        border: none;
                                     ">
                                     {{ userInitials }}
                                 </a-avatar>
@@ -216,7 +213,7 @@ const currentLanguageLabel = computed(() => {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - 4rem); 
+    width: calc(100% - 4rem);
     max-width: 1920px;
     z-index: 1000;
 }
@@ -242,39 +239,10 @@ const currentLanguageLabel = computed(() => {
     cursor: pointer;
 }
 
-.brand-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 20px;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.brand-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.2;
-    gap: 2px;
-}
-
-.brand-name {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1f1f1f;
-    letter-spacing: -0.5px;
-}
-
-.brand-tagline {
-    font-size: 12px;
-    font-weight: 600;
-    color: #667eea;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+.brand-logo {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
 }
 
 // Center Section
@@ -299,8 +267,8 @@ const currentLanguageLabel = computed(() => {
         &:hover,
         &:focus {
             background: #ffffff;
-            border-color: #667eea;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+            border-color: #30cfd0;
+            box-shadow: 0 0 0 2px rgba(48, 207, 208, 0.1);
         }
     }
     :deep(.ant-input-affix-wrapper) {
@@ -325,8 +293,8 @@ const currentLanguageLabel = computed(() => {
     transition: all 0.3s;
 
     &:hover {
-        color: #667eea;
-        background: rgba(102, 126, 234, 0.1);
+        color: #30cfd0;
+        background: rgba(48, 207, 208, 0.1);
     }
 }
 
@@ -340,13 +308,13 @@ const currentLanguageLabel = computed(() => {
     transition: all 0.3s;
 
     &:hover {
-        background: rgba(102, 126, 234, 0.05);
+        background: rgba(48, 207, 208, 0.05);
     }
 }
 
 .user-avatar {
     border: 2px solid white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px rgba(48, 207, 208, 0.3);
     font-weight: 600;
 }
 
@@ -410,7 +378,7 @@ const currentLanguageLabel = computed(() => {
         line-height: 40px;
 
         &:hover {
-            background: rgba(102, 126, 234, 0.1);
+            background: rgba(48, 207, 208, 0.1);
         }
 
         a {
@@ -420,7 +388,7 @@ const currentLanguageLabel = computed(() => {
             color: #595959;
 
             &:hover {
-                color: #667eea;
+                color: #30cfd0;
             }
         }
     }
@@ -454,8 +422,8 @@ const currentLanguageLabel = computed(() => {
         line-height: 64px;
     }
 
-    .brand-name {
-        font-size: 16px;
+    .brand-logo {
+        height: 36px;
     }
 
     .user-avatar {
@@ -469,10 +437,8 @@ const currentLanguageLabel = computed(() => {
         padding: 0 12px;
     }
 
-    .brand-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 18px;
+    .brand-logo {
+        height: 32px;
     }
 
     .header-right {

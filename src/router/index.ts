@@ -158,6 +158,12 @@ const routes: RouteRecordRaw[] = [
 export const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    }
+    return { left: 0, top: 0, behavior: 'auto' };
+  },
 });
 
 // Navigation guards
@@ -186,4 +192,10 @@ router.beforeEach(async (to, from, next) => {
   } else {
     next();
   }
+});
+
+router.afterEach(() => {
+  setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, 250);
 });

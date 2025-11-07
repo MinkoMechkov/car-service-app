@@ -35,7 +35,9 @@
     "logoutError": "Error logging out",
     "phone": "Phone Number",
     "phonePlaceholder": "+359 XXX XXX XXX",
-    "phoneInvalid": "Please enter a valid phone number"
+    "phoneInvalid": "Please enter a valid phone number",
+    "loginSubtitle":"Welcome back! Please login to your account.",
+    "registerSubtitle": "Create your account to get started."
   },
   "common": {
     "settings": "Settings",
