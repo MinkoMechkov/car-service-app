@@ -52,7 +52,7 @@ const metrics = computed(() => {
 
 // Get recent offers (last 5 for admin, all for client)
 const recentOffers = computed(() =>
-    isAdmin.value ? offers.value.slice(0, 5) : offers.value
+    isAdmin.value ? offers.value.slice(0, 3) : offers.value
 );
 
 const getStatusColor = (status: string) => {

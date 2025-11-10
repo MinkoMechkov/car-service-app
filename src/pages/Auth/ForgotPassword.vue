@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
-import { useRouter } from "vue-router";
 import { message } from "ant-design-vue";
 import { authMutations } from "@/api/auth/mutations";
 import { useI18n } from "vue-i18n";
@@ -8,7 +7,6 @@ import type { Rule } from "ant-design-vue/es/form";
 import { CheckCircleOutlined } from "@ant-design/icons-vue";
 
 const { t } = useI18n();
-const router = useRouter();
 const loading = ref(false);
 const submitted = ref(false);
 
@@ -161,29 +159,6 @@ const onFinish = async (values: { email: string }) => {
 .submit-item {
     margin-top: 8px;
     margin-bottom: 24px;
-}
-
-.gradient-button {
-    background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
-    border: none;
-    border-radius: 12px;
-    height: 48px;
-    font-size: 16px;
-    font-weight: 600;
-    box-shadow: 0 4px 15px rgba(48, 207, 208, 0.4);
-    transition: all 0.3s;
-
-    &:hover,
-    &:focus {
-        background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
-        box-shadow: 0 6px 20px rgba(48, 207, 208, 0.5);
-        transform: translateY(-2px);
-        color: #ffffff;
-    }
-
-    &:active {
-        transform: translateY(0);
-    }
 }
 
 .auth-footer {

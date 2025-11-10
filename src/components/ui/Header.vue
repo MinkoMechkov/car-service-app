@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { useRouter } from "vue-router";
-import { message } from "ant-design-vue";
-import {
+  import { computed } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { message } from 'ant-design-vue';
+  import {
     UserOutlined,
     DownOutlined,
     SettingOutlined,
@@ -10,82 +10,75 @@ import {
     BellOutlined,
     SearchOutlined,
     GlobalOutlined,
-} from "@ant-design/icons-vue";
-import { useGlobalState } from "@/composables/useGlobalState";
-import { useI18n } from "vue-i18n";
-import { Grid } from "ant-design-vue";
-import logoHorizontal from "@/assets/images/logo_horizontal.png";
+  } from '@ant-design/icons-vue';
+  import { useGlobalState } from '@/composables/useGlobalState';
+  import { useI18n } from 'vue-i18n';
+  import { Grid } from 'ant-design-vue';
+  import logoHorizontal from '@/assets/images/logo_horizontal.png';
 
-const { setLocale, locale } = useLocale();
+  const { setLocale, locale } = useLocale();
 
-const useBreakpoint = Grid.useBreakpoint;
-const screens = useBreakpoint();
+  const useBreakpoint = Grid.useBreakpoint;
+  const screens = useBreakpoint();
 
-defineProps<{
+  defineProps<{
     title?: string;
-}>();
+  }>();
 
-const emit = defineEmits<{
-    (e: "toggle-menu"): void;
-}>();
+  const emit = defineEmits<{
+    (e: 'toggle-menu'): void;
+  }>();
 
-const { t } = useI18n();
-const router = useRouter();
-const { user, role, signOut } = useGlobalState();
+  const { t } = useI18n();
+  const router = useRouter();
+  const { user, role, signOut } = useGlobalState();
 
-const userName = computed(() => {
-    return (
-        user.value?.user_metadata?.full_name ||
-        user.value?.email?.split("@")[0] ||
-        "User"
-    );
-});
+  const userName = computed(() => {
+    return user.value?.user_metadata?.full_name || user.value?.email?.split('@')[0] || 'User';
+  });
 
-const userInitials = computed(() => {
+  const userInitials = computed(() => {
     const name = userName.value;
     return name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2);
-});
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  });
 
-const handleLogout = async () => {
+  const handleLogout = async () => {
     try {
-        await signOut();
-        message.success(t("auth.logoutSuccess"));
-        router.push("/auth/login");
+      await signOut();
+      message.success(t('auth.logoutSuccess'));
+      router.push('/auth/login');
     } catch (error: any) {
-        message.error(error.message || t("auth.logoutError"));
+      message.error(error.message || t('auth.logoutError'));
     }
-};
+  };
 
-const languageMap: Record<string, string> = {
-    en: "English",
-    bg: "Български",
-};
+  const languageMap: Record<string, string> = {
+    en: 'English',
+    bg: 'Български',
+  };
 
-const currentLanguageLabel = computed(() => {
+  const currentLanguageLabel = computed(() => {
     return `${languageMap[locale.value]}`;
-});
+  });
 </script>
 
 <template>
-    <a-layout-header class="modern-header">
-        <div class="header-container">
-            <!-- Left Section: Logo & Brand -->
-            <div class="header-left">
-                <router-link to="/" class="brand-section">
-                    <img
-                        :src="logoHorizontal"
-                        alt="AutoRepair Pro"
-                        class="brand-logo" />
-                </router-link>
-            </div>
+  <a-layout-header class="modern-header">
+    <div class="header-container">
+      <!-- Left Section: Logo & Brand -->
+      <div class="header-left">
+        <router-link to="/" class="brand-section">
+          <img :src="logoHorizontal" alt="AutoRepair Pro" class="brand-logo" />
+        </router-link>
+      </div>
 
-            <!-- Center Section: Search (Desktop only) -->
-            <!-- <div v-if="screens.lg" class="header-center">
+      <!-- Center Section: Search (Desktop only) -->
+      <!-- <div v-if="screens.lg" class="header-center">
                 <a-input-search
                     placeholder="Search repairs, clients, vehicles..."
                     size="large"
@@ -97,112 +90,86 @@ const currentLanguageLabel = computed(() => {
                 </a-input-search>
             </div> -->
 
-            <!-- Right Section: Actions & User -->
-            <div class="header-right">
-                <!-- Search Icon (Mobile) -->
-                <a-button
-                    v-if="!screens.lg"
-                    type="text"
-                    class="header-action-btn"
-                    shape="circle">
-                    <SearchOutlined />
-                </a-button>
+      <!-- Right Section: Actions & User -->
+      <div class="header-right">
+        <!-- Search Icon (Mobile) -->
+        <a-button v-if="!screens.lg" type="text" class="header-action-btn" shape="circle">
+          <SearchOutlined />
+        </a-button>
 
-                <!-- Notifications -->
-                <a-badge :count="3" :offset="[-5, 5]">
-                    <a-button
-                        type="text"
-                        class="header-action-btn"
-                        shape="circle">
-                        <BellOutlined />
-                    </a-button>
-                </a-badge>
+        <!-- Notifications -->
+        <a-badge :count="3" :offset="[-5, 5]">
+          <a-button type="text" class="header-action-btn" shape="circle">
+            <BellOutlined />
+          </a-button>
+        </a-badge>
 
-                <!-- User Dropdown -->
-                <a-dropdown placement="bottomRight">
-                    <div class="user-profile">
-                        <a-avatar
-                            class="user-avatar"
-                            :size="40"
-                            style="
-                                background: linear-gradient(
-                                    135deg,
-                                    #30cfd0 0%,
-                                    #330867 100%
-                                );
-                            ">
-                            {{ userInitials }}
-                        </a-avatar>
-                        <div v-if="screens.md" class="user-info">
-                            <span class="user-name">{{ userName }}</span>
-                            <span class="user-role">{{ role }}</span>
-                        </div>
-                        <DownOutlined v-if="screens.md" class="dropdown-icon" />
-                    </div>
-                    <template #overlay>
-                        <a-menu class="user-dropdown-menu">
-                            <div class="dropdown-header">
-                                <a-avatar
-                                    :size="48"
-                                    style="
-                                        background: linear-gradient(
-                                            135deg,
-                                            #30cfd0 0%,
-                                            #330867 100%
-                                        );
-                                        border: none;
-                                    ">
-                                    {{ userInitials }}
-                                </a-avatar>
-                                <div class="dropdown-user-info">
-                                    <strong>{{ userName }}</strong>
-                                    <span>{{ user?.email }}</span>
-                                </div>
-                            </div>
-                            <a-menu-divider />
-                            <a-menu-item key="profile">
-                                <router-link to="/settings">
-                                    <UserOutlined />
-                                    {{ $t("common.profile") }}
-                                </router-link>
-                            </a-menu-item>
-                            <a-menu-item key="settings">
-                                <router-link to="/settings">
-                                    <SettingOutlined />
-                                    {{ $t("common.settings") }}
-                                </router-link>
-                            </a-menu-item>
-                            <a-sub-menu
-                                key="sub1"
-                                :title="currentLanguageLabel">
-                                <template #icon>
-                                    <GlobalOutlined />
-                                </template>
-                                <a-menu-item key="en" @click="setLocale('en')"
-                                    >English</a-menu-item
-                                >
-                                <a-menu-item key="bg" @click="setLocale('bg')"
-                                    >Български</a-menu-item
-                                >
-                            </a-sub-menu>
-                            <a-menu-divider />
-                            <a-menu-item
-                                key="logout"
-                                @click="handleLogout"
-                                class="logout-item">
-                                <LogoutOutlined />
-                                {{ $t("auth.logout") }}
-                            </a-menu-item>
-                        </a-menu>
-                    </template>
-                </a-dropdown>
+        <!-- User Dropdown -->
+        <a-dropdown placement="bottomRight">
+          <div class="user-profile">
+            <a-avatar
+              class="user-avatar"
+              :size="40"
+              style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%)">
+              {{ userInitials }}
+            </a-avatar>
+            <div v-if="screens.md" class="user-info">
+              <span class="user-name">{{ userName }}</span>
+              <span class="user-role">{{ role }}</span>
             </div>
-        </div>
-    </a-layout-header>
+            <DownOutlined v-if="screens.md" class="dropdown-icon" />
+          </div>
+          <template #overlay>
+            <a-menu class="user-dropdown-menu">
+              <div class="dropdown-header">
+                <a-avatar
+                  :size="48"
+                  style="
+                    background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+                    border: none;
+                  ">
+                  {{ userInitials }}
+                </a-avatar>
+                <div class="dropdown-user-info">
+                  <strong>{{ userName }}</strong>
+                  <span>{{ user?.email }}</span>
+                </div>
+              </div>
+              <a-menu-divider />
+              <a-menu-item key="profile">
+                <router-link to="/settings">
+                  <UserOutlined />
+                  {{ $t('common.profile') }}
+                </router-link>
+              </a-menu-item>
+              <a-menu-item key="settings">
+                <router-link to="/settings">
+                  <SettingOutlined />
+                  {{ $t('common.settings') }}
+                </router-link>
+              </a-menu-item>
+              <a-sub-menu key="sub1" :title="currentLanguageLabel">
+                <template #icon>
+                  <GlobalOutlined />
+                </template>
+                <a-menu-item key="en" @click="setLocale('en')">English</a-menu-item>
+                <a-menu-item key="bg" @click="setLocale('bg')">Български</a-menu-item>
+              </a-sub-menu>
+              <a-menu-divider />
+              <a-menu-item key="logout" @click="handleLogout" class="logout-item">
+                <LogoutOutlined />
+                {{ $t('auth.logout') }}
+              </a-menu-item>
+            </a-menu>
+          </template>
+        </a-dropdown>
+      </div>
+    </div>
+  </a-layout-header>
 </template>
 
 <style scoped lang="scss">
-.modern-header {
+  .modern-header {
     background: #ffffff;
     padding: 0 24px;
     height: 82px;
@@ -216,89 +183,89 @@ const currentLanguageLabel = computed(() => {
     width: calc(100% - 4rem);
     max-width: 1920px;
     z-index: 1000;
-}
+  }
 
-.header-container {
+  .header-container {
     display: inline-flex;
     align-items: center;
     gap: 60px;
     height: 100%;
     justify-content: space-between;
     width: 100%;
-}
+  }
 
-.header-left {
+  .header-left {
     display: flex;
     align-items: center;
-}
+  }
 
-.brand-section {
+  .brand-section {
     display: flex;
     align-items: center;
     gap: 12px;
     cursor: pointer;
-}
+  }
 
-.brand-logo {
+  .brand-logo {
     height: 50px;
     width: auto;
     object-fit: contain;
-}
+  }
 
-// Center Section
-.header-center {
+  // Center Section
+  .header-center {
     flex: 1;
     display: flex;
     justify-content: center;
     padding: 0 24px;
-}
+  }
 
-.global-search {
+  .global-search {
     :deep(.ant-input-search) {
-        border-radius: 12px;
+      border-radius: 12px;
     }
 
     :deep(.ant-input) {
-        border-radius: 12px;
-        background: #f5f5f5;
-        border: 1px solid transparent;
-        transition: all 0.3s;
+      border-radius: 12px;
+      background: #f5f5f5;
+      border: 1px solid transparent;
+      transition: all 0.3s;
 
-        &:hover,
-        &:focus {
-            background: #ffffff;
-            border-color: #30cfd0;
-            box-shadow: 0 0 0 2px rgba(48, 207, 208, 0.1);
-        }
+      &:hover,
+      &:focus {
+        background: #ffffff;
+        border-color: #30cfd0;
+        box-shadow: 0 0 0 2px rgba(48, 207, 208, 0.1);
+      }
     }
     :deep(.ant-input-affix-wrapper) {
-        border: none;
+      border: none;
     }
 
     :deep(.ant-input-search-button) {
-        border-radius: 0 12px 12px 0;
+      border-radius: 0 12px 12px 0;
     }
-}
+  }
 
-// Right Section
-.header-right {
+  // Right Section
+  .header-right {
     display: flex;
     align-items: center;
     gap: 8px;
-}
+  }
 
-.header-action-btn {
+  .header-action-btn {
     font-size: 18px;
     color: #595959;
     transition: all 0.3s;
 
     &:hover {
-        color: #30cfd0;
-        background: rgba(48, 207, 208, 0.1);
+      color: #30cfd0;
+      background: rgba(48, 207, 208, 0.1);
     }
-}
+  }
 
-.user-profile {
+  .user-profile {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -308,141 +275,146 @@ const currentLanguageLabel = computed(() => {
     transition: all 0.3s;
 
     &:hover {
-        background: rgba(48, 207, 208, 0.05);
+      background: rgba(48, 207, 208, 0.05);
     }
-}
+  }
 
-.user-avatar {
+  .user-avatar {
     border: 2px solid white;
     box-shadow: 0 2px 8px rgba(48, 207, 208, 0.3);
     font-weight: 600;
-}
+  }
 
-.user-info {
+  .user-info {
     display: flex;
     flex-direction: column;
     line-height: 1.3;
     text-align: left;
-}
+  }
 
-.user-name {
+  .user-name {
     font-size: 14px;
     font-weight: 600;
     color: #1f1f1f;
-}
+  }
 
-.user-role {
+  .user-role {
     font-size: 12px;
     color: #8c8c8c;
-}
+  }
 
-.dropdown-icon {
+  .dropdown-icon {
     font-size: 12px;
     color: #8c8c8c;
-}
+  }
 
-// Dropdown Menu
-.user-dropdown-menu {
+  // Dropdown Menu
+  .user-dropdown-menu {
     min-width: 240px;
     border-radius: 12px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
     padding: 8px;
 
     .dropdown-header {
-        padding: 16px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     .dropdown-user-info {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
 
-        strong {
-            font-size: 14px;
-            color: #1f1f1f;
-        }
+      strong {
+        font-size: 14px;
+        color: #1f1f1f;
+      }
 
-        span {
-            font-size: 12px;
-            color: #8c8c8c;
-        }
+      span {
+        font-size: 12px;
+        color: #8c8c8c;
+      }
     }
 
     :deep(.ant-menu-item) {
-        border-radius: 8px;
-        margin: 4px 0;
-        height: 40px;
-        line-height: 40px;
+      border-radius: 8px;
+      margin: 4px 0;
+      height: 40px;
+      line-height: 40px;
+
+      &:hover {
+        background: rgba(48, 207, 208, 0.1);
+      }
+
+      a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #595959;
 
         &:hover {
-            background: rgba(48, 207, 208, 0.1);
+          color: #30cfd0;
         }
-
-        a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #595959;
-
-            &:hover {
-                color: #30cfd0;
-            }
-        }
+      }
     }
 
     .logout-item {
+      color: #ff4d4f;
+
+      &:hover {
+        background: rgba(255, 77, 79, 0.1);
+      }
+
+      :deep(.anticon) {
         color: #ff4d4f;
-
-        &:hover {
-            background: rgba(255, 77, 79, 0.1);
-        }
-
-        :deep(.anticon) {
-            color: #ff4d4f;
-        }
+      }
     }
-}
+  }
 
-// Badge customization
-:deep(.ant-badge) {
+  // Badge customization
+  :deep(.ant-badge) {
     .ant-badge-count {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        box-shadow: 0 2px 8px rgba(245, 87, 108, 0.4);
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      box-shadow: 0 2px 8px rgba(245, 87, 108, 0.4);
     }
-}
+  }
 
-// Responsive
-@media (max-width: 768px) {
+  :deep(.ant-avatar-string) {
+    top: 50%;
+    transform: scale(1) translate(-50%, -50%) !important;
+  }
+
+  // Responsive
+  @media (max-width: 768px) {
     .modern-header {
-        padding: 0 16px;
-        height: 64px;
-        line-height: 64px;
+      padding: 0 16px;
+      height: 64px;
+      line-height: 64px;
     }
 
     .brand-logo {
-        height: 36px;
+      height: 36px;
     }
 
     .user-avatar {
-        width: 36px;
-        height: 36px;
+      width: 36px;
+      height: 36px;
     }
-}
+  }
 
-@media (max-width: 576px) {
+  @media (max-width: 576px) {
     .modern-header {
-        padding: 0 12px;
+      padding: 0 12px;
     }
 
     .brand-logo {
-        height: 32px;
+      height: 32px;
     }
 
     .header-right {
-        gap: 4px;
+      gap: 4px;
     }
-}
+  }
 </style>
