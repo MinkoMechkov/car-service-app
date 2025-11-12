@@ -30,6 +30,7 @@ const { isAdmin, user } = useGlobalState();
 const currentUserId = computed(() => user.value?.id || '');
 const currentClient = useCurrentClientQuery(currentUserId, isAdmin);
 const currentClientId = computed(() => currentClient.data.value?.id || '');
+const pendingDeletes = ref(new Set<string>());
 
 interface RepairWithRelations extends Repair {
   vehicle?: {
@@ -47,6 +48,7 @@ const repairsQuery = isAdmin.value
   : useClientRepairsQuery(currentClientId);
 
 const deleteMutation = useDeleteRepairMutation();
+
 
 const getStatus = (repair: RepairWithRelations) => {
   if ((repair as any).status) return (repair as any).status as string;
@@ -172,7 +174,17 @@ const columns: TableColumnsType = [
       ),
       isAdmin.value && h(Popconfirm, {
         title: t('common.confirmDelete'),
-        onConfirm: () => deleteMutation.mutate(record.id)
+        onConfirm: () => {
+          pendingDeletes.value.add(record.id);
+          deleteMutation.mutate(record.id, {
+            onSuccess: () => {
+              pendingDeletes.value.delete(record.id);
+            },
+            onError: () => {
+              pendingDeletes.value.delete(record.id);
+            },
+          });
+        }
       }, {
         default: () => h(Tooltip, { title: t('common.delete') }, () =>
           h(Button, {
@@ -180,6 +192,7 @@ const columns: TableColumnsType = [
             size: 'small',
             danger: true,
             icon: h(DeleteOutlined),
+            loading: pendingDeletes.value.has(record.id),         
           })
         )
       })

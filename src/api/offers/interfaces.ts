@@ -35,6 +35,7 @@ export interface CatalogService {
     default_price: number;
 }
 
+// --- Offer with admin relation (used in admin dashboard)
 export interface OfferWithRelations extends Offer {
     admin: {
         id: string;
@@ -53,6 +54,9 @@ export interface Offer {
     status: "pending" | "accepted" | "declined";
     created_at: string;
     updated_at: string;
+    repair_id?: string | null;
+
+    // Relations
     parts?: OfferPart[];
     services?: OfferService[];
 }
