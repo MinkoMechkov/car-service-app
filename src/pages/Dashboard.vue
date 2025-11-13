@@ -32,8 +32,9 @@
 
   const { t } = useI18n();
   const router = useRouter();
-  const { user, isAdmin } = useGlobalState();
-  const currentUserId = computed(() => user.value?.id || '');
+  const { user, userId, isAdmin } = useGlobalState();
+  
+  const currentUserId = userId;
   const currentClient = useCurrentClientQuery(currentUserId, isAdmin);
   const currentClientId = computed(() => currentClient.data.value?.id || '');
 
@@ -53,9 +54,7 @@
   const recentRepairsQuery = useRecentRepairsQuery();
 
   // Ensure client repairs query stays scoped to current user reactively
-  const repairsQuery = isAdmin.value
-    ? useRepairsQuery()
-    : useClientRepairsQuery(currentClientId);
+  const repairsQuery = isAdmin.value ? useRepairsQuery() : useClientRepairsQuery(currentClientId);
 
   const clientsQuery = useClientsQuery();
 
@@ -70,9 +69,7 @@
 
   const recentRepairs = computed(() => {
     // Admins see globally recent repairs; clients see recent of their own repairs only
-    const source = isAdmin.value
-      ? recentRepairsQuery.data.value
-      : repairsQuery.data.value;
+    const source = isAdmin.value ? recentRepairsQuery.data.value : repairsQuery.data.value;
 
     const items = (source || [])
       .slice()
@@ -82,7 +79,8 @@
     return items.map((repair: any) => ({
       key: repair.id,
       id: repair.id,
-      vehicle: `${repair.vehicle?.make || ''} ${repair.vehicle?.model || ''}`.trim() || 'Unknown Vehicle',
+      vehicle:
+        `${repair.vehicle?.make || ''} ${repair.vehicle?.model || ''}`.trim() || 'Unknown Vehicle',
       plate: repair.vehicle?.license_plate || '',
       client: repair.vehicle?.client?.name || 'Unknown Client',
       status: getStatus(repair),
@@ -416,12 +414,9 @@
 
     <!-- Main Content Grid -->
     <a-row :gutter="[16, 16]" class="content-row">
-      <!-- Offers -->
-      <a-col :xs="24">
-        <OffersOffersWidget />
-      </a-col>
+
       <!-- Recent Repairs -->
-      <a-col :xs="24" :lg="isAdmin ? 16 : 24">
+      <a-col :xs="24">
         <a-card
           :title="isAdmin ? $t('dashboard.recentRepairs') : $t('dashboard.myRecentRepairs')"
           :bordered="false"
@@ -474,9 +469,18 @@
         </a-card>
       </a-col>
 
-      <!-- Quick Stats & Calendar -->
-      <a-col v-if="isAdmin" :xs="24" :lg="8">
-        <!-- Pending Tasks -->
+      <!-- Offers -->
+      <a-col :xs="24">
+        <OffersOffersWidget />
+      </a-col>
+      
+      <!-- Booking Calendar -->
+       <a-col :xs="24">
+          <BookingsBookingCalendar :is-admin="isAdmin" :client-id="currentClientId" />
+       </a-col>
+
+      <!-- Pending Tasks -->
+      <!-- <a-col v-if="isAdmin" :xs="24" :lg="8">
         <a-card
           :title="$t('dashboard.pendingTasks')"
           :bordered="false"
@@ -514,7 +518,7 @@
             </template>
           </a-list>
         </a-card>
-      </a-col>
+      </a-col> -->
     </a-row>
 
     <!-- Revenue Chart -->
@@ -543,6 +547,7 @@
         </a-card>
       </a-col>
     </a-row>
+    
   </div>
 </template>
 

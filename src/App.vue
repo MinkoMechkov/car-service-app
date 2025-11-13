@@ -20,6 +20,13 @@
     return route.meta.layout + '-layout';
   });
 
+  const indicator = h(SettingOutlined, {
+    style: {
+      fontSize: '60px',
+    },
+    spin: true,
+  });
+
   onMounted(() => {
     initLocale();
     initState();
@@ -59,8 +66,8 @@
           gap: 1rem;
           flex-direction: column;
         ">
-        <SettingOutlined
-          style="font-size: 64px; color: #3498db; animation: spin 2s linear infinite" />
+        <a-spin size="large" :indicator="indicator" />
+
         <h2>{{ t('common.loadingApp') }}</h2>
       </div>
       <div style="height: 100%; display: flex; justify-content: center" v-else v-auto-animate>
@@ -70,14 +77,3 @@
   </a-config-provider>
   <VueQueryDevtools />
 </template>
-
-<style scoped lang="scss">
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-</style>

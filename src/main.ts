@@ -4,6 +4,7 @@ import { createApp } from "vue";
 import Antd from "ant-design-vue";
 import "@/assets/scss/main.scss";
 import "antd-css-utilities/utility.min.css";
+import "ant-design-vue/dist/reset.css"; 
 import { VueQueryPlugin, QueryClient } from "@tanstack/vue-query";
 import { autoAnimatePlugin } from "@formkit/auto-animate/vue";
 import { router } from "@/router/index";

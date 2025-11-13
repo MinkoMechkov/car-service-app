@@ -26,7 +26,7 @@ export default defineConfig({
         }),
         Components({
             resolvers: [
-                AntDesignVueResolver({ importStyle: "less" }),
+                AntDesignVueResolver({ importStyle: false }),
                 MotionResolver(),
             ],
             directoryAsNamespace: true,
