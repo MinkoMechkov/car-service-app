@@ -157,6 +157,7 @@ export const useCreateRepairFromOfferMutation = () => {
     onSuccess: (repairId, offerId) => {
       message.success('Repair created successfully');
       queryClient.invalidateQueries({ queryKey: ['repairs'] });
+      queryClient.invalidateQueries({ queryKey: ['recentRepairs'] });
       queryClient.invalidateQueries({ queryKey: ['offers'] });
       queryClient.invalidateQueries({ queryKey: ['offerDetails', offerId] });
       return repairId;

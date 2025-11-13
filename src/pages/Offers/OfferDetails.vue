@@ -187,7 +187,7 @@
 
               <a-button
                 type="primary"
-                v-if="offer.status === 'accepted' && !offer.repair_id"
+                v-if="offer.status === 'accepted' && !offer.repair_id && isAdmin"
                 @click="createRepair"
                 :loading="mutation.isPending.value">
                 Create Repair from Offer
